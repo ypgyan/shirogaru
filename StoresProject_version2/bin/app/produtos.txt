@@ -1,0 +1,7 @@
+6 5
+AMER;1001;Livro;O Monge e o Executivo;48;20,00;James C. Hunter;140
+SUBM;1002;Eletronico;Smartphone Moto G5 Plus;12;900,00;Motorola;155;Prata
+SUBM;1003;Eletronico;Smartphone Moto G5;10;750,00;Motorola;144;Prata
+SARA;1001;Livro;O Monge e o Executivo;24;19,00;James C. Hunter;140
+RICE;1004;ItemCasa;Jogo de Facas 6 peças Tramontina;18;150,00;Metal;Preta;Mesa
+MAGA;1005;ItemCasa;Jogo de Toalhas 3 peças;58;75,00;Algodão;Branca;Banho

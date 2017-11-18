@@ -1,0 +1,7 @@
+6
+AMER;Americanas.com;5
+SARA;Livraria Saraiva;5
+SUBM;Submarino.com;4
+RICE;Ricardo Eletro;4
+MAGA;Magazine Luiza;5
+MEGA;Megaloja Palace;1
