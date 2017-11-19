@@ -21,9 +21,9 @@ public class MainApp {
             
             //Busca.listarLojas(new ArrayList<>(lojas.values()));
             //Busca.todosItens(itens);
-            //Busca.nomeProduto(itens, "MOTO");
-            //Busca.nomeLoja(itens, IdentificadorLoja.RICELETRO);
-            //Busca.tipoProduto(itens, TipoProduto.ITEMCASA);
+            //Busca.nomeProduto(itens, "x");
+            //Busca.nomeLoja(itens, IdentificadorLoja.AMERICANAS);
+            //Busca.tipoProduto(itens, TipoProduto.ELETRONICO);
             Busca.codigoProduto(itens, "1001");
             
     	}
@@ -49,8 +49,6 @@ public class MainApp {
     	
     	//Instance a map structure to save the stores, where the key is String type
         Map<String, Loja> lojas = new HashMap<>();
-        		
-        scanLojas.nextLine(); //Ignore the first line of the file
         
         while (scanLojas.hasNextLine()) 
         {
@@ -76,14 +74,13 @@ public class MainApp {
     	//File arqInput = new File(pathArquivo);
     	Scanner scanProdutos = new Scanner(MainApp.class.getResourceAsStream("produtos.txt"));
     	
-    	int nRegistros = scanProdutos.nextInt();
-    	scanProdutos.nextLine(); //Ler o resto da linha que é o \n para tratar erros
-    	
     	Map<String, Produto> produtos = new HashMap<>();
     	List<Item> itens = new ArrayList<>();
+    	int countLine = 0;
     	
     	//Loops according the numbers of products registrations
-    	for (int i = 0; i < nRegistros; i++) {
+    	while (scanProdutos.hasNextLine()) {
+    		countLine++;
     		String[] linha = scanProdutos.nextLine().split(";"); //Read the register/record 
     		String cod = linha[1], nome = linha[3];
     		String tipoProduto = linha[2];
@@ -111,7 +108,7 @@ public class MainApp {
     				
     				default : //Doesn't exist this type of product
     					System.out.println("Nao existe esse item. Resolva o problema!");
-    					System.out.println("Problema na linha " + (i+1));
+    					System.out.println("Problema na linha " + (countLine+1));
     					System.exit(1);
     			}
     			
