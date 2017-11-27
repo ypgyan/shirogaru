@@ -22,9 +22,9 @@ public class MainApp {
             //Busca.listarLojas(new ArrayList<>(lojas.values()));
             //Busca.todosItens(itens);
             //Busca.nomeProduto(itens, "x");
-            //Busca.nomeLoja(itens, IdentificadorLoja.AMERICANAS);
+            //Busca.nomeLoja(itens, "submarino.com");
             //Busca.tipoProduto(itens, TipoProduto.ELETRONICO);
-            Busca.codigoProduto(itens, "1001");
+            Busca.codigoProduto(itens, 1001);
             
     	}
     	catch (FileNotFoundException e) {
@@ -74,7 +74,7 @@ public class MainApp {
     	//File arqInput = new File(pathArquivo);
     	Scanner scanProdutos = new Scanner(MainApp.class.getResourceAsStream("produtos.txt"));
     	
-    	Map<String, Produto> produtos = new HashMap<>();
+    	Map<Integer, Produto> produtos = new HashMap<>();
     	List<Item> itens = new ArrayList<>();
     	int countLine = 0;
     	
@@ -82,7 +82,8 @@ public class MainApp {
     	while (scanProdutos.hasNextLine()) {
     		countLine++;
     		String[] linha = scanProdutos.nextLine().split(";"); //Read the register/record 
-    		String cod = linha[1], nome = linha[3];
+    		int cod = Integer.parseInt(linha[1]); 
+    		String nome = linha[3];
     		String tipoProduto = linha[2];
     		String Idloja = linha[0];
     		double preco = Double.parseDouble(linha[5].replace(',', '.'));

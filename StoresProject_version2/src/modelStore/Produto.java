@@ -1,12 +1,12 @@
 package modelStore;
 
-public abstract class Produto {
+public abstract class Produto implements Comparable<Produto> {
 	/* Atributos */
 	private String nome;
-	private String codigo;
+	private int codigo;
     
 	/* Construtor */
-	public Produto(String nome, String cod) 
+	public Produto(String nome, int cod) 
 	{
 		this.nome = nome;
 		this.codigo = cod;
@@ -18,7 +18,7 @@ public abstract class Produto {
 		return this.nome;
 	}
 	
-	public String getCodigo() 
+	public int getCodigo() 
 	{
 		return this.codigo;
 	}
@@ -33,10 +33,15 @@ public abstract class Produto {
 		
 		if (obj == null) { return false; }
 		
-		if (!(obj instanceof Produto)) { return false; } 
+		else if (!(obj instanceof Produto)) { return false; } 
 		
-		((Produto) obj).codigo.equals(this.codigo); 
+		else if (((Produto) obj).codigo != this.codigo) { return false; }
 
 		return true;
+	}
+	
+	@Override
+	public int compareTo(Produto p) {
+		return this.codigo - p.codigo;
 	}
 }

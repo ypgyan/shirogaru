@@ -7,7 +7,7 @@ public class Eletronico extends Produto {
 	private double peso;
 	
 	
-	public Eletronico(String nome, String cod, String marca, String cor, double peso) {
+	public Eletronico(String nome, int cod, String marca, String cor, double peso) {
 		super(nome, cod);
 		this.marca = marca;
 		this.cor = cor;

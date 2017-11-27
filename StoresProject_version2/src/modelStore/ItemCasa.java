@@ -8,7 +8,7 @@ public class ItemCasa extends Produto{
 	
 	
 	/* Construtor */
-	public ItemCasa(String nome, String cod, String material, String cor, String tipo) {
+	public ItemCasa(String nome, int cod, String material, String cor, String tipo) {
 		super(nome, cod);
 		this.cor = cor;
 		this.material = material;

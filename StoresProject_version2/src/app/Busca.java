@@ -45,10 +45,11 @@ class Busca {
 	}
 	
 	//Search by store name
-	public static void nomeLoja(List<Item> itens, IdentificadorLoja il) {
+	public static void nomeLoja(List<Item> itens, String loja) {
 		
 		for (Item it : itens) {
-			if (it.getLoja().getId().toLowerCase().equals(il.getId().toLowerCase())) {
+			if (it.getLoja().getNome().toLowerCase().equals(loja.toLowerCase()) || 
+				it.getLoja().getId().toLowerCase().equals(loja.toLowerCase())) {
 				System.out.println(it.toString());
 			}
 		}
@@ -76,13 +77,13 @@ class Busca {
 	}
 	
 	//Search by product code
-	public static void codigoProduto(List<Item> itens, String codigo) {
+	public static void codigoProduto(List<Item> itens, int codigo) {
 		
 		//First has to sort the elements by where the priority is code then price
-		Collections.sort(itens, new ComparadorCodigoPreco());
+		Collections.sort(itens);
 		
 		for (Item it : itens) {
-			if (it.getProduto().getCodigo().equals(codigo)) {
+			if (it.getProduto().getCodigo() == codigo) {
 				System.out.println(it.toString());
 			}
 		}

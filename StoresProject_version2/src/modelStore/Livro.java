@@ -7,7 +7,7 @@ public class Livro extends Produto {
 	
 	
 	/* Construtor */
-	public Livro(String nome, String cod, String autor, int nPag) {
+	public Livro(String nome, int cod, String autor, int nPag) {
 		super(nome, cod);
 		this.autor = autor;
 		this.nPaginas = nPag;

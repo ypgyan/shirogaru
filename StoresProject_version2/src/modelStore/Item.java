@@ -1,6 +1,6 @@
 package modelStore;
 
-public class Item {
+public class Item implements Comparable<Item> {
 	/* Atributos */
 	private double preco;
 	private Produto produto;
@@ -39,5 +39,17 @@ public class Item {
 	@Override
 	public String toString() {
 		return this.loja.getId() + " " + String.format("%-10s", this.produto) + " " + String.format("%-5d %.2f", this.quantidade, this.preco);
+	}
+
+	@Override
+	public int compareTo(Item it) {
+		// Use compareTo from product and if they're equal compare by product price
+		int comparacao = this.getProduto().compareTo(it.getProduto()); 
+		
+		if (comparacao != 0) {
+			return comparacao;
+		}
+		
+		return (int) (this.preco - it.preco);
 	}	
 }
