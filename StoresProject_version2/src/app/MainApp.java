@@ -1,6 +1,7 @@
 package app;
 
 import java.util.Scanner;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
@@ -9,46 +10,34 @@ import java.util.HashMap;
 import modelStore.*; 
 
 public class MainApp {
-	
-	
     public static void main(String[] args)  
     {
     	try {
-    		//Get all stores from the folder
-    		Map<String, Loja> lojas = importarLojas();
-    		//Get all items from the folder
-            List<Item> itens = extrairItens(lojas);
-            
-            //Busca.listarLojas(new ArrayList<>(lojas.values()));
-            //Busca.todosItens(itens);
-            //Busca.nomeProduto(itens, "x");
-            //Busca.nomeLoja(itens, "submarino.com");
-            //Busca.tipoProduto(itens, TipoProduto.ELETRONICO);
-            Busca.codigoProduto(itens, 1002);
-            
-    	}
-    	catch (FileNotFoundException e) {
-    		e.printStackTrace();
-    	}
-    	finally {
+    		Map<String, Loja> lojas = importarLojas("Database/lojas.txt");
+    		List<Item> itens = extrairItens(lojas, "Database/produtos.txt");
     		
-    		
-			System.out.println("\nFinalizado");
-		}
-        
+    		Busca.listarLojas(new ArrayList<>(lojas.values()));
+    	    Busca.todosItens(itens);
+    	    //Busca.nomeProduto(itens, "x");
+    	    //Busca.nomeLoja(itens, "submarino.com");
+    	    //Busca.tipoProduto(itens, TipoProduto.ITEMCASA);
+    	    //Busca.codigoProduto(itens, 1003);
+    	}
+    	catch(FileNotFoundException e) {
+    		System.out.println("Arquivo nao encontrado");
+    	}
+	     
+		System.out.println("\nFinalizado");
     }
-
     
     /* Import stores read from file */
-    public static Map<String, Loja> importarLojas() throws FileNotFoundException  
+    public static Map<String, Loja> importarLojas(String nomeArq) throws FileNotFoundException  
     {
-    	//String pathArquivo = ClassLoader.getSystemResource("lojas.txt").getPath();
-    	//File arqInput = new File(pathArquivo);
-    	Scanner scanLojas = new Scanner(MainApp.class.getResourceAsStream("lojas.txt"));
-    	
+    	//String pathArq = ClassLoader.getSystemResource(nomeArq).getPath();
+    	Scanner scanLojas = new Scanner(new File(nomeArq));
     	
     	//Instance a map structure to save the stores, where the key is String type
-        Map<String, Loja> lojas = new HashMap<>();
+    	Map<String, Loja> lojas = new HashMap<>();
         
         while (scanLojas.hasNextLine()) 
         {
@@ -61,6 +50,7 @@ public class MainApp {
             //Store instance
             lojas.put(id, new Loja(id, nome, avaliacao)); 
         }
+    	
         scanLojas.close();
         
         return lojas;
@@ -68,11 +58,10 @@ public class MainApp {
 
 
     /* Import the products from the file and put all of them on respective items */
-    public static List<Item> extrairItens(Map<String, Loja> lojas) throws FileNotFoundException
+    public static List<Item> extrairItens(Map<String, Loja> lojas, String nomeArq) throws FileNotFoundException
     {
-    	//String pathArquivo = ClassLoader.getSystemResource("produtos.txt").getPath();
-    	//File arqInput = new File(pathArquivo);
-    	Scanner scanProdutos = new Scanner(MainApp.class.getResourceAsStream("produtos.txt"));
+    	//String pathArq = ClassLoader.getSystemResource(nomeArq).getPath();
+    	Scanner scanProdutos = new Scanner(new File(nomeArq));
     	
     	Map<Integer, Produto> produtos = new HashMap<>();
     	List<Item> itens = new ArrayList<>();
