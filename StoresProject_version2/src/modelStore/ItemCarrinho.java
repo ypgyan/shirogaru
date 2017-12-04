@@ -19,4 +19,9 @@ public class ItemCarrinho {
 	public Item getItem() {
 		return this.item;
 	}
+	
+	@Override
+	public String toString() {
+		return this.item.toString() + "\n" +this.quantidade;
+	}
 }

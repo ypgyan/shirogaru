@@ -20,19 +20,16 @@ public class MainApp {
     		List<Item> itens = extrairItens(lojas, "Database/produtos.txt");
     		
     		menu(lojas, itens);
-    		
-    		//
-    	    //
     	    //Busca.todosItens(itens);
-    	    //Busca.nomeLoja(itens, "submarino.com");
-    	    //
     	    //Busca.codigoProduto(itens, 1003);
     	}
     	catch(FileNotFoundException e) {
     		System.out.println("Arquivo nao encontrado");
     	}
-	     
-		System.out.println("\nFinalizado");
+    	finally {
+    		scanUser.close();
+    		System.out.println("\nFinalizado");
+    	}
     }
     
     /* Import stores read from file */
@@ -156,7 +153,6 @@ public class MainApp {
         			Busca.nomeProduto(itens, nomeProd);
         			pularLinha();
         			tcgBuy(itens, cart);
-        			System.out.println("olooooko");
         			
         			break;
         		
@@ -170,7 +166,6 @@ public class MainApp {
         			pularLinha();
         			
         			break; 
-        			
         			
         		default:
         			System.out.println("Nao existe essa busca");
@@ -214,18 +209,13 @@ public class MainApp {
 				int qtd = scanUser.nextInt();
 				scanUser.nextLine();
 				cart.add(new ItemCarrinho(itemSelecionado,qtd));
-			}else{
+			}
+			else {
 				System.out.println("Ocorreu algum erro tente de novo.");
-			};
-			
-			//scanUser.close();
+			}
 			return true;
 		}
-		
-		//scanUser.close();
 		return false;
-		
-		
     }
     
     private static void pularLinha() {
