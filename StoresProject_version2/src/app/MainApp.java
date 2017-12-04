@@ -10,6 +10,9 @@ import java.util.HashMap;
 import modelStore.*; 
 
 public class MainApp {
+	//Atributo static
+	private static Scanner scanUser = new Scanner(System.in);
+	
     public static void main(String[] args)  
     {
     	try {
@@ -120,42 +123,35 @@ public class MainApp {
     
     public static void menu (Map<String, Loja> lojas, List<Item> itens ) {
     	//Menu para o usuario que chamar a classe aplicacao
-        Scanner scanUser = new Scanner(System.in);
-        
         // Inicialiação das variaveis
         List<ItemCarrinho> cart = new ArrayList<>();
 		int opcao = 0;
 		String opcao2 = "";
-        int opcao3 = 0;
-         
         
         //Faz o menu enquanto o opcao continuar ser menor que zero
         do{
         	
+        	
         	System.out.println("Escolha uma opcao da busca desejada dos itens:");
 			System.out.println("1 - Por Loja\n2 - Por Nome do produto\n3 - Por Tipo");
-	        
-			opcao = scanUser.nextInt();
-	        
+
+			opcao = Integer.parseInt(scanUser.nextLine());
+			
         	pularLinha();
         	switch (opcao) {
         		case 1: //busca por loja
         			Busca.listarLojas(new ArrayList<>(lojas.values()));
-        			
         			System.out.println("Informe o nome da loja desejada: ");
-        			
-        			
         			opcao2 = scanUser.nextLine(); // Captura o nome desejada da loja
-        			
+        			System.out.println();
         			Busca.nomeLoja(itens, opcao2);
+        			pularLinha();
         			
         			break;
         		
         		case 2: //busca por nome
         			// Lista todos os produtos do sistema
         			System.out.println("Insira o nome do produto que deseja buscar:");
-        			scanUser.nextLine(); //Resolver o problema do \n
-        			
         			String nomeProd = scanUser.nextLine();
         			Busca.nomeProduto(itens, nomeProd);
         			pularLinha();
@@ -166,13 +162,12 @@ public class MainApp {
         		
         		case 3: //busca por tipo
         			System.out.println("Escolha uma opcao do tipo desejado:");
-        			System.out.println("1 - Eletronico\n2 - Livro\n3 - Item de Casa");
+        			System.out.println("1 - Eletronico\n2 - Item de Casa\n3 - Livro");
         			
-        			opcao3 = scanUser.nextInt();
+        			opcao = Integer.parseInt(scanUser.nextLine());
         			pularLinha();
-        			Busca.tipoProduto(itens, opcao3);
+        			Busca.tipoProduto(itens, opcao);
         			pularLinha();
-        			//buscaItensTipo(opcao2, lojas);
         			
         			break; 
         			
@@ -181,15 +176,16 @@ public class MainApp {
         			System.out.println("Nao existe essa busca");
         			
         	}
-        }while (opcao > 0);
+        	
+        	
+        } while (opcao > 0);
         
-        System.out.println("Finalizado!");
         scanUser.close();
+        System.out.println("Finalizado!");
+        
     }
     
     private static boolean tcgBuy(List<Item> itens, List<ItemCarrinho> cart) {	
-    	Scanner scanUser = new Scanner(System.in);
-    	
     	Item itemSelecionado;
     	int decision = 0;
     	int cod = 0;
@@ -217,16 +213,16 @@ public class MainApp {
 				System.out.println("Informe a quantidade do produto: ");
 				int qtd = scanUser.nextInt();
 				scanUser.nextLine();
-				cart.add(new ItemCarrinho (itemSelecionado,qtd));
+				cart.add(new ItemCarrinho(itemSelecionado,qtd));
 			}else{
 				System.out.println("Ocorreu algum erro tente de novo.");
 			};
 			
-			scanUser.close();
+			//scanUser.close();
 			return true;
 		}
 		
-		scanUser.close();
+		//scanUser.close();
 		return false;
 		
 		
