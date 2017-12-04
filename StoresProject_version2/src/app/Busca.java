@@ -56,10 +56,10 @@ class Busca {
 	}
 	
 	//Search by product type
-	public static void tipoProduto(List<Item> itens, TipoProduto tp) {
+	public static void tipoProduto(List<Item> itens, int opcao) {
 		
 		for (Item it : itens) {
-				if (identificadorTipoProduto(it.getProduto()) == tp.getId()) {
+				if (identificadorTipoProduto(it.getProduto()) == opcao) {
 					System.out.println(it.toString());
 			}
 		}
@@ -87,5 +87,16 @@ class Busca {
 				System.out.println(it.toString());
 			}
 		}
+	}
+	
+	public static Item selecionaItem (List<Item> itens,String loja, int codProduto) {
+		
+		for (Item it : itens) {
+			if ((it.getProduto().getCodigo() == codProduto) && 
+				it.getLoja().getId().toLowerCase().equals(loja.toLowerCase())) {
+				return it;
+			}
+		}
+		return null;
 	}
 }

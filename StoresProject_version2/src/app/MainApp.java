@@ -16,11 +16,13 @@ public class MainApp {
     		Map<String, Loja> lojas = importarLojas("Database/lojas.txt");
     		List<Item> itens = extrairItens(lojas, "Database/produtos.txt");
     		
-    		Busca.listarLojas(new ArrayList<>(lojas.values()));
-    	    Busca.todosItens(itens);
-    	    //Busca.nomeProduto(itens, "x");
+    		menu(lojas, itens);
+    		
+    		//
+    	    //
+    	    //Busca.todosItens(itens);
     	    //Busca.nomeLoja(itens, "submarino.com");
-    	    //Busca.tipoProduto(itens, TipoProduto.ITEMCASA);
+    	    //
     	    //Busca.codigoProduto(itens, 1003);
     	}
     	catch(FileNotFoundException e) {
@@ -115,7 +117,125 @@ public class MainApp {
     	scanProdutos.close();
     	return itens;
     }
-
-	
+    
+    public static void menu (Map<String, Loja> lojas, List<Item> itens ) {
+    	//Menu para o usuario que chamar a classe aplicacao
+        Scanner scanUser = new Scanner(System.in);
+        
+        // Inicialiação das variaveis
+        List<ItemCarrinho> cart = new ArrayList<>();
+		int opcao = 0;
+		String opcao2 = "";
+        int opcao3 = 0;
+         
+        
+        //Faz o menu enquanto o opcao continuar ser menor que zero
+        do{
+        	
+        	System.out.println("Escolha uma opcao da busca desejada dos itens:");
+			System.out.println("1 - Por Loja\n2 - Por Nome do produto\n3 - Por Tipo");
+	        
+			opcao = scanUser.nextInt();
+	        
+        	pularLinha();
+        	switch (opcao) {
+        		case 1: //busca por loja
+        			Busca.listarLojas(new ArrayList<>(lojas.values()));
+        			
+        			System.out.println("Informe o nome da loja desejada: ");
+        			
+        			
+        			opcao2 = scanUser.nextLine(); // Captura o nome desejada da loja
+        			
+        			Busca.nomeLoja(itens, opcao2);
+        			
+        			break;
+        		
+        		case 2: //busca por nome
+        			// Lista todos os produtos do sistema
+        			System.out.println("Insira o nome do produto que deseja buscar:");
+        			scanUser.nextLine(); //Resolver o problema do \n
+        			
+        			String nomeProd = scanUser.nextLine();
+        			Busca.nomeProduto(itens, nomeProd);
+        			pularLinha();
+        			tcgBuy(itens, cart);
+        			System.out.println("olooooko");
+        			
+        			break;
+        		
+        		case 3: //busca por tipo
+        			System.out.println("Escolha uma opcao do tipo desejado:");
+        			System.out.println("1 - Eletronico\n2 - Livro\n3 - Item de Casa");
+        			
+        			opcao3 = scanUser.nextInt();
+        			pularLinha();
+        			Busca.tipoProduto(itens, opcao3);
+        			pularLinha();
+        			//buscaItensTipo(opcao2, lojas);
+        			
+        			break; 
+        			
+        			
+        		default:
+        			System.out.println("Nao existe essa busca");
+        			
+        	}
+        }while (opcao > 0);
+        
+        System.out.println("Finalizado!");
+        scanUser.close();
+    }
+    
+    private static boolean tcgBuy(List<Item> itens, List<ItemCarrinho> cart) {	
+    	Scanner scanUser = new Scanner(System.in);
+    	
+    	Item itemSelecionado;
+    	int decision = 0;
+    	int cod = 0;
+    	String loja = "";
+    	
+    	while(decision < 1 || decision > 2) {
+    		System.out.println("Deseja informar um item para compra ou iniciar outra busca? \n 1 - yes \n 2 - no");
+        	decision = scanUser.nextInt();
+    	}
+    	
+		if (decision == 1) {
+			
+			System.out.println("Informe o nome da loja e o codigo do produto: ");
+			System.out.println("Loja: ");
+			scanUser.nextLine();
+			loja = scanUser.nextLine();
+			System.out.println("COD produto: ");
+			cod = scanUser.nextInt();
+			
+			// Sera redirecionado para comprar o item.
+			System.out.println("Processando compra");
+			itemSelecionado = Busca.selecionaItem(itens, loja, cod);
+			
+			if (itemSelecionado != null) {
+				System.out.println("Informe a quantidade do produto: ");
+				int qtd = scanUser.nextInt();
+				scanUser.nextLine();
+				cart.add(new ItemCarrinho (itemSelecionado,qtd));
+			}else{
+				System.out.println("Ocorreu algum erro tente de novo.");
+			};
+			
+			scanUser.close();
+			return true;
+		}
+		
+		scanUser.close();
+		return false;
+		
+		
+    }
+    
+    private static void pularLinha() {
+    	for(int i = 0; i<3; i++) {
+    		System.out.println();
+    	}
+    }
 }
 	
