@@ -120,29 +120,39 @@ public class MainApp {
     
     public static void menu (Map<String, Loja> lojas, List<Item> itens ) {
     	//Menu para o usuario que chamar a classe aplicacao
-        // Inicialiação das variaveis
+        
+    	// Inicialiação das variaveis
         List<ItemCarrinho> cart = new ArrayList<>();
-		int opcao = 0;
+        int opcao = 0;
 		String opcao2 = "";
+		
         
         //Faz o menu enquanto o opcao continuar ser menor que zero
         do{
-        	
-        	
+        	// Caso o usuario ja tenho feito uma compra o carrinho sera mostrado
+        	if (cart.size() > 0) {
+        		printCart(cart);
+			}
+        	// Mostra as opções disponiveis no sistema.
         	System.out.println("Escolha uma opcao da busca desejada dos itens:");
-			System.out.println("1 - Por Loja\n2 - Por Nome do produto\n3 - Por Tipo");
+			System.out.println("1 - Por Loja\n2 - Por Nome do produto\n3 - Por Tipo\n4 - todos os produtos(Em construção)"
+					+ "\n5 - Todas as lojas (Em construção)\n0 - Encerrar Sistema");
 
 			opcao = Integer.parseInt(scanUser.nextLine());
 			
-        	pularLinha();
+        	pularLinha(2);
         	switch (opcao) {
+        		case 0:
+        			System.out.println("Agradecemos a preferência!!\n VOLTE SEMPRE");
+        			break;
+        			
         		case 1: //busca por loja
         			Busca.listarLojas(new ArrayList<>(lojas.values()));
         			System.out.println("Informe o nome da loja desejada: ");
         			opcao2 = scanUser.nextLine(); // Captura o nome desejada da loja
         			System.out.println();
         			Busca.nomeLoja(itens, opcao2);
-        			pularLinha();
+        			tcgBuy(itens,cart);
         			
         			break;
         		
@@ -151,41 +161,37 @@ public class MainApp {
         			System.out.println("Insira o nome do produto que deseja buscar:");
         			String nomeProd = scanUser.nextLine();
         			Busca.nomeProduto(itens, nomeProd);
-        			pularLinha();
+        			// Chama a função que preencher o carrinho.
         			tcgBuy(itens, cart);
-        			
         			break;
         		
         		case 3: //busca por tipo
         			System.out.println("Escolha uma opcao do tipo desejado:");
         			System.out.println("1 - Eletronico\n2 - Item de Casa\n3 - Livro");
-        			
         			opcao = Integer.parseInt(scanUser.nextLine());
-        			pularLinha();
         			Busca.tipoProduto(itens, opcao);
-        			pularLinha();
-        			
+        			tcgBuy(itens, cart);
         			break; 
         			
         		default:
         			System.out.println("Nao existe essa busca");
         			
         	}
-        	
-        	
+        	pularLinha(5);
         } while (opcao > 0);
-        
-        scanUser.close();
-        System.out.println("Finalizado!");
         
     }
     
-    private static boolean tcgBuy(List<Item> itens, List<ItemCarrinho> cart) {	
+    private static boolean tcgBuy(List<Item> itens, List<ItemCarrinho> cart) {
+    	pularLinha(2);
+    	// Inicialização das variaveis
     	Item itemSelecionado;
     	int decision = 0;
     	int cod = 0;
     	String loja = "";
     	
+    	// Pergunta para o usuário se ele realmente deseja comprar um dos pordutos (Adicionar no carrinho)
+    	// E verifica se ele está inserindo o valor correto.
     	while(decision < 1 || decision > 2) {
     		System.out.println("Deseja informar um item para compra ou iniciar outra busca? \n 1 - yes \n 2 - no");
         	decision = scanUser.nextInt();
@@ -195,31 +201,42 @@ public class MainApp {
 			
 			System.out.println("Informe o nome da loja e o codigo do produto: ");
 			System.out.println("Loja: ");
-			scanUser.nextLine();
-			loja = scanUser.nextLine();
+			scanUser.nextLine(); 
+			loja = scanUser.nextLine(); // captura o nome da loja
 			System.out.println("COD produto: ");
-			cod = scanUser.nextInt();
+			cod = scanUser.nextInt(); // captura o codigo do produto
 			
-			// Sera redirecionado para comprar o item.
-			System.out.println("Processando compra");
+			// Atraves do COD e do nome da LOJA retornara o produto desejado.
 			itemSelecionado = Busca.selecionaItem(itens, loja, cod);
 			
+			// Verifica se foi encontrado algum produto
 			if (itemSelecionado != null) {
 				System.out.println("Informe a quantidade do produto: ");
 				int qtd = scanUser.nextInt();
 				scanUser.nextLine();
+				// Insere o produto no carrinho
 				cart.add(new ItemCarrinho(itemSelecionado,qtd));
+				System.out.println("Produto adicionado ao Carrinho");
 			}
 			else {
 				System.out.println("Ocorreu algum erro tente de novo.");
 			}
 			return true;
 		}
+		scanUser.nextLine();
 		return false;
     }
     
-    private static void pularLinha() {
-    	for(int i = 0; i<3; i++) {
+    private static void printCart(List<ItemCarrinho> cart) {
+    	System.out.println("CARRINHO");
+		for (ItemCarrinho it : cart) {
+    		System.out.println(it.toString());
+    	}
+    }
+    
+    // Função com o objtivo de pular linha
+    private static void pularLinha(int x) {
+    	for(int i = 0; i < x; i++) {
     		System.out.println();
     	}
     }
