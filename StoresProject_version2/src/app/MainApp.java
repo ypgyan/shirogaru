@@ -140,7 +140,7 @@ public class MainApp {
         	// Mostra as opções disponiveis no sistema.
         	System.out.println("Escolha uma opcao da busca desejada dos itens:");
 			System.out.println("1 - Por Loja\n2 - Por Nome do produto\n3 - Por Tipo\n4 - Código do produto"
-					+ "\n5 - Todos os itens do sistema\n0 - Encerrar Sistema");
+					+ "\n5 - Todos os itens do sistema\n6 - Alterar carrinho (Em construção)\n0 - Encerrar Sistema");
 
 			opcao = Integer.parseInt(scanUser.nextLine());
 			
@@ -190,6 +190,14 @@ public class MainApp {
         			chamadaCompra = true;
         			break;
         			
+        		case 6: // O usario podera encerrar ou remover algo do carrinho.
+        			if (cart.isEmpty()) {
+						System.out.println("Carrinho Vazio");
+					}else {
+	        			menuCart(itens,cart);
+					}
+        			break;
+        			
         		default:
         			chamadaCompra = false;
         			System.out.println("Nao existe essa busca");
@@ -199,7 +207,8 @@ public class MainApp {
         		Listagem.listarItens(itensFiltrados);
         		tcgBuy(itensFiltrados, cart);
         	}
-        	Listagem.pularLinha(5);
+        	System.out.println("############################################################");
+        	Listagem.pularLinha(2);
         	
         } while (opcao != 0);
     }
@@ -217,11 +226,14 @@ public class MainApp {
     	System.out.println("Você deseja: \n1 - Comprar algum item"
 							+ "\n2 - Voltar para o menu principal");
     	decision = controleEntradaDados(scanUser.nextLine(), 1, 2);
-    	
+    	Listagem.pularLinha(2);
     	//Deseja comprar
-		if (decision == 1) {
+		if (decision == 1) {			
+			System.out.println("Selecione o item que deseja comprar:");
+			// Lista o resultado da pesquisa outra
+			Listagem.listarItens(itens);
+			Listagem.pularLinha(1);
 			
-			System.out.println("Selecione o item que deseja comprar");
 			opcao = controleEntradaDados(scanUser.nextLine(), 1, itens.size()) - 1; // captura o nome da loja
 			
 			// atraves do que foi selecionado pelo usuario é colocado o item em seu carrinho
@@ -249,6 +261,52 @@ public class MainApp {
 		
 		//Nao deseja comprar
 		return false;
+    }
+
+    // Menu para interagir com o carrinho.
+    private static void menuCart(List<Item> itens, List<ItemCarrinho> cart) {
+    	
+    	int nav = 0;
+    	
+    	do{	
+    		System.out.println("O que gostaria de fazer:");
+    		// Lista os itens do carrinho.
+    		Listagem.listarItensCarrinho(cart);
+    		Listagem.pularLinha(1);
+    		System.out.println("1 - Remover determinado produto\n2 - Finalizar compras\n3 - Cancelar carrinho\n0 - Voltar ao menu principal.");
+    		
+    		nav = Integer.parseInt(scanUser.nextLine());
+
+    		switch (nav) {
+	    		case 1: // Altera produtos do carrinho.
+	    			int opcao = 0;
+	    			ItemCarrinho itemCart = null;
+	    			Item itemEstoque = null;
+	    			System.out.println("Escolha o produto que deseja remover:");
+	    			Listagem.listarItensCarrinho(cart);
+	    			opcao = controleEntradaDados(scanUser.nextLine(), 1, cart.size())-1;
+	    			itemCart = cart.get(opcao);
+	    			itemEstoque = Busca.pegaItem(itens ,itemCart.getItem().getLoja().getNome(), itemCart.getItem().getProduto().getCodigo());
+	    			System.out.println(itemEstoque);
+	    			if (itemEstoque == null) {
+						System.out.println("vazio");
+					}else {
+						System.out.println("oloooko");
+					}
+	    			break;
+	    		
+	    		case 2: // O usuario faz a compra finalizando o carrinho.
+	    			
+	    			break;
+	    		
+	    		case 3: // Encerra o carrinho e retorna o estoque doos produtos.
+	    			
+	    			break;
+	    			
+	    		default:
+	    			System.out.println("Nao existe essa busca");
+    		}
+    	}while(nav != 0);
     }
     
     //Método que serve para controlar entrada de dados realizada pelo usuário para que digite o correto

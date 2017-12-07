@@ -100,4 +100,15 @@ class Busca {
 		
 		return codigoProdutoFiltrado;
 	}
+	
+	public static Item pegaItem(List<Item> itens, String loja, int codProd ){
+		;
+		for (Item it : itens) {
+			if ((it.getProduto().getCodigo() == codProd) && 
+				it.getLoja().getId().toLowerCase().equals(loja.toLowerCase())) {
+				return it;
+			}
+		}
+		return null;
+	}
 }

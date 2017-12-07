@@ -14,11 +14,16 @@ class Listagem {
     	}
     }
 	
+    // Carrinho é listado de acordo com a ordem da compra.
 	public static void listarItensCarrinho(List<ItemCarrinho> cart) 
 	{
-		for (ItemCarrinho it : cart) {
-    		System.out.println(it.toString());
-    	}
+		if (cart.isEmpty()) {
+			System.out.println("Carrinho vazio.");
+		}else {
+			for (int i = 0; i < cart.size(); i++) {
+	    		System.out.println((i+1) + " - " + cart.get(i).toString());
+	    	}
+		}
     }
     
     public static void listarItens(List<Item> itens) 
