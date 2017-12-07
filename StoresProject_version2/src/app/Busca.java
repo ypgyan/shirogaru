@@ -2,73 +2,81 @@ package app;
 
 import modelStore.*;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
 import java.util.Collections;
 
-/* This class just has static methods responsible for search */
+/* This class is responsible for searching */
 class Busca {
 	
-	//Print all stores
-    public static void listarLojas(List<Loja> lojas) 
+	//return a list all stores ordered by rating stars 
+    public static List<Loja> todasLojas(Map<String, Loja> lojas) 
     {
-    	//Before print the stores is used sort method from Collections Class
-    	Collections.sort(lojas);
+    	List<Loja> listaAux = new ArrayList<>(lojas.values());
     	
-    	for (Loja loja : lojas) {
-    		System.out.println(loja);
-    	}
+    	//stores is used sort method from Collections Class
+    	Collections.sort(listaAux);
+    	
+    	return listaAux;
     }
     
-    // Print all products
-    public static void listarProdutos(List<Produto> produtos) {
-
-    	for (Produto prod : produtos) {
-    		System.out.println(prod);
-    	}
-    }    
-	
-	// Print all items from List 
-    public static void todosItens(List<Item> itens) {
+    //return a list all products ordered by code
+    public static List<Produto> todosProdutos(Map<Integer, Produto> produtos) 
+    {	
+    	List<Produto> listaAux = new ArrayList<>(produtos.values());
     	
-    	for (Item it : itens) {
-    		System.out.println(it.toString());
-    	}
+    	//stores is used sort method from Collections Class
+    	Collections.sort(listaAux);
+    	
+    	return listaAux;
     }
 	
 	//Search by product name and print all elements where the search == true
-	public static void nomeProduto(List<Item> itens, String nomeBusca) {
-
+	public static List<Item> nomeProduto(List<Item> itens, String nomeBusca) 
+	{	
+		List<Item> nomeProdutoFiltrado = new ArrayList<>();
+		 
 		for (Item it : itens) {
 			if (it.getProduto().getNome().toLowerCase().contains(nomeBusca.toLowerCase())) {
-				System.out.println(it.toString());
+				nomeProdutoFiltrado.add(it);
 			}
 		}
+		
+		return nomeProdutoFiltrado;
 	}
 	
 	//Search by store name
-	public static void nomeLoja(List<Item> itens, String loja) {
+	public static List<Item> porLoja(List<Item> itens, Loja loja) 
+	{
+		List<Item> nomeLojaFiltrado = new ArrayList<>();
 		
 		for (Item it : itens) {
-			if (it.getLoja().getNome().toLowerCase().equals(loja.toLowerCase()) || 
-				it.getLoja().getId().toLowerCase().equals(loja.toLowerCase())) {
-				System.out.println(it.toString());
+			if (it.getLoja().equals(loja)) {
+				nomeLojaFiltrado.add(it);
 			}
 		}
+		
+		return nomeLojaFiltrado;
 	}
 	
 	//Search by product type
-	public static void tipoProduto(List<Item> itens, int opcao) {
+	public static List<Item> tipoProduto(List<Item> itens, int opcao) 
+	{
+		List<Item> tipoProdutoFiltrado = new ArrayList<>();
 		
 		for (Item it : itens) {
 				if (identificadorTipoProduto(it.getProduto()) == opcao) {
-					System.out.println(it.toString());
+					tipoProdutoFiltrado.add(it);
 			}
 		}
+		
+		return tipoProdutoFiltrado;
 	}
 	
 	
 	//This method identify the correctly product instance and returns respective product type
-	private static int identificadorTipoProduto(Produto prod) {
-		
+	private static int identificadorTipoProduto(Produto prod) 
+	{	
 		int identifica = (prod instanceof Eletronico) ? TipoProduto.ELETRONICO.getId() :
 			             (prod instanceof ItemCasa) ? TipoProduto.ITEMCASA.getId() : 
 			              TipoProduto.LIVRO.getId();
@@ -77,19 +85,23 @@ class Busca {
 	}
 	
 	//Search by product code
-	public static void codigoProduto(List<Item> itens, int codigo) {
+	public static List<Item> codigoProduto(List<Item> itens, int codigo) 
+	{	
+		List<Item> codigoProdutoFiltrado = new ArrayList<>();
 		
 		//First has to sort the elements by where the priority is code then price
 		Collections.sort(itens);
 		
 		for (Item it : itens) {
 			if (it.getProduto().getCodigo() == codigo) {
-				System.out.println(it.toString());
+				codigoProdutoFiltrado.add(it);
 			}
 		}
+		
+		return codigoProdutoFiltrado;
 	}
 	
-	public static Item selecionaItem (List<Item> itens,String loja, int codProduto) {
+	public static Item selecionaItem (List<Item> itens, String loja, int codProduto) {
 		
 		for (Item it : itens) {
 			if ((it.getProduto().getCodigo() == codProduto) && 

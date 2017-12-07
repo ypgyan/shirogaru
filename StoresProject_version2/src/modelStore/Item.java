@@ -9,7 +9,8 @@ public class Item implements Comparable<Item> {
 	
 	
 	/* Construtor */
-	public Item(Loja loja, Produto prod, double preco, int quantidade) {
+	public Item(Loja loja, Produto prod, double preco, int quantidade) 
+	{
 		this.preco = preco;
 		this.produto = prod; //Ja recebe a referencia do produto construido
 		this.loja = loja;
@@ -18,31 +19,37 @@ public class Item implements Comparable<Item> {
 
 
 	/* Métodos */
-	public double getPreco() {
+	public double getPreco() 
+	{
 		return preco;
 	}
 
 
-	public Produto getProduto() {
+	public Produto getProduto() 
+	{
 		return produto;
 	}
 	
 	
-	public Loja getLoja() {
+	public Loja getLoja()
+	{
 		return this.loja;
 	}
 	
-	public int getQuantidade() {
+	public int getQuantidade() 
+	{
 		return quantidade;
 	}
 	
 	@Override
-	public String toString() {
+	public String toString() 
+	{
 		return this.loja.getId() + " " + String.format("%-10s", this.produto) + " " + String.format("%-5d %.2f", this.quantidade, this.preco);
 	}
 
 	@Override
-	public int compareTo(Item it) {
+	public int compareTo(Item it)
+	{
 		// Use compareTo from product and if they're equal compare by product price
 		int comparacao = this.getProduto().compareTo(it.getProduto()); 
 		
@@ -51,5 +58,41 @@ public class Item implements Comparable<Item> {
 		}
 		
 		return (int) (this.preco - it.preco);
-	}	
+	}
+	
+	@Override
+	public boolean equals(Object obj) 
+	{
+		if ((obj == null) || !(obj instanceof Item))
+    		return false; 
+		
+		Loja loja = ((Item)obj).getLoja();
+		Produto produto = ((Item)obj).getProduto();
+		
+		if (this.produto.equals(produto) && this.loja.equals(loja))
+			return true;
+		
+		return false;
+	}
+	
+	public boolean debitarEstoque(int quantidade) 
+	{
+		if (quantidade <= this.quantidade && quantidade > 0) {
+			this.quantidade -= quantidade;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	//Usado principalmente se o usuário cancelar a compra
+	public boolean inserirEstoque(int quantidade) 
+	{
+		if (quantidade > 0) {
+			this.quantidade += quantidade;
+			return true;
+		}
+		
+		return false;
+	}
 }

@@ -50,9 +50,22 @@ public class Loja implements Comparable<Loja> {
     {
     	return String.format("%-20s %-10s", nome, id) + " " + String.format("%d estrelas", avaliacao); 
     }
+    
+    @Override
+    public boolean equals(Object obj) 
+    {
+    	if ((obj == null) || !(obj instanceof Loja))
+    		return false; 
+    	
+    	if (this.getId().equals( ((Loja)obj).getId() ))
+    		return true;
+    	
+    	return false;
+    }
 
 	@Override
-	public int compareTo(Loja l) {
+	public int compareTo(Loja l) 
+	{
 		int valor = ((this.avaliacao - l.avaliacao) * -1);
 		
 		if (valor == 0) {

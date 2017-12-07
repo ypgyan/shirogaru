@@ -12,16 +12,20 @@ public class ItemCarrinho {
 	}
 	
 	/* Metodos */
-	public int getQuantidade() {
+	public int getQuantidade() 
+	{
 		return this.quantidade;
 	}
 	
-	public Item getItem() {
+	public Item getItem() 
+	{
 		return this.item;
 	}
 	
 	@Override
-	public String toString() {
-		return this.item.toString() + "\n" +this.quantidade;
+	public String toString() 
+	{
+		return this.item.getLoja().getId() + " " + this.getItem().getProduto() + String.format("%-3d %.2f", 
+				this.quantidade, this.item.getPreco());
 	}
 }
