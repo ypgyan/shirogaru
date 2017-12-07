@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 import modelStore.*; 
@@ -185,6 +186,7 @@ public class MainApp {
         		case 5: //busca por todos os produtos
         			System.out.println("Todos os produtos cadastrados do sistesma sao:");
         			itensFiltrados = itens;
+        			Collections.sort(itens);
         			chamadaCompra = true;
         			break;
         			
@@ -220,21 +222,27 @@ public class MainApp {
     	
     	//Deseja comprar
 		if (decision == 1) {
-			
-			System.out.println("Selecione o item que deseja comprar:");
-			opcao = Integer.parseInt(scanUser.nextLine()) - 1; // captura o nome da loja
+						
+			do {
+				System.out.println("Selecione o item que deseja comprar:");
+				opcao = Integer.parseInt(scanUser.nextLine()) - 1; // captura o nome da loja
+			}while(!(opcao >= 0 && opcao < itens.size()));
 			
 			// atraves do que foi selecionado pelo usuario é colocado o item em seu carrinho
-			if (opcao >= 0 && opcao < itens.size())
-				itemSelecionado = itens.get(opcao); 
+			itemSelecionado = itens.get(opcao); 
 			
 			// Verifica se foi encontrado algum produto
 			if (itemSelecionado != null) {
-				System.out.println("Informe a quantidade do produto: ");
-				int qtd = Integer.parseInt(scanUser.nextLine());
+				int qtd = 0;
+				// Garantir que o usuario digite um valor que seja aceito.
+				do {
+					System.out.println("Informe a quantidade do produto: ");
+					qtd = Integer.parseInt(scanUser.nextLine());
+				}while(!(itemSelecionado.debitarEstoque(qtd))); // Remove a quantidade do estoque geral momentaneamente;
 				
 				// Insere o produto no carrinho
 				cart.add(new ItemCarrinho(itemSelecionado, qtd));
+				
 				System.out.println("Produto adicionado ao Carrinho");
 			}
 			else {

@@ -49,14 +49,7 @@ public class Item implements Comparable<Item> {
 
 	@Override
 	public int compareTo(Item it)
-	{
-		// Use compareTo from product and if they're equal compare by product price
-		int comparacao = this.getProduto().compareTo(it.getProduto()); 
-		
-		if (comparacao != 0) {
-			return comparacao;
-		}
-		
+	{		
 		return (int) (this.preco - it.preco);
 	}
 	

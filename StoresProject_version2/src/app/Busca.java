@@ -90,7 +90,7 @@ class Busca {
 		List<Item> codigoProdutoFiltrado = new ArrayList<>();
 		
 		//First has to sort the elements by where the priority is code then price
-		Collections.sort(itens);
+		Collections.sort(itens, new ComparaCodPreco());
 		
 		for (Item it : itens) {
 			if (it.getProduto().getCodigo() == codigo) {
@@ -99,16 +99,5 @@ class Busca {
 		}
 		
 		return codigoProdutoFiltrado;
-	}
-	
-	public static Item selecionaItem (List<Item> itens, String loja, int codProduto) {
-		
-		for (Item it : itens) {
-			if ((it.getProduto().getCodigo() == codProduto) && 
-				it.getLoja().getId().toLowerCase().equals(loja.toLowerCase())) {
-				return it;
-			}
-		}
-		return null;
 	}
 }
