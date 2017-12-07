@@ -1,0 +1,12 @@
+1 o cliente Seleciona a busca desejada
+2 o sistema faz a busca listando os itens
+3 o sistema pergunta se deseja comprar ou voltar ao menu principal
+4 o cliente seleciona a opção perguntada do sistema
+	4.1 se o cliente optar por voltar então volta ao passo 1
+	4.2 se o cliente selecionar por comprar:
+		o sistema mostra todas opções de compra
+		o cliente seleciona um item para comprar ou cancela
+			Caso cancele volta ao passo 3
+			Caso selecione o item insere a quantidade requerida
+5 O sistema adiciona o item no carrinho
+6 O sistema volta ao passo 3, para ver se o cliente quer comprar mais algum item dessa busca

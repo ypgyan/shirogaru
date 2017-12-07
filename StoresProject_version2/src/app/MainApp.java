@@ -214,19 +214,15 @@ public class MainApp {
     	int opcao = 0;
     	
     	// Pergunta para o usuário se ele realmente deseja comprar um dos pordutos (Adicionar no carrinho)
-    	// E verifica se ele está inserindo o valor correto.
-    	while(decision < 1 || decision > 2) {
-    		System.out.println("Deseja informar um item para compra ou iniciar outra busca? \n 1 - yes \n 2 - no");
-        	decision = Integer.parseInt(scanUser.nextLine());
-    	}
+    	System.out.println("Você deseja: \n1 - Comprar algum item"
+							+ "\n2 - Voltar para o menu principal");
+    	decision = controleEntradaDados(scanUser.nextLine(), 1, 2);
     	
     	//Deseja comprar
 		if (decision == 1) {
-						
-			do {
-				System.out.println("Selecione o item que deseja comprar:");
-				opcao = Integer.parseInt(scanUser.nextLine()) - 1; // captura o nome da loja
-			}while(!(opcao >= 0 && opcao < itens.size()));
+			
+			System.out.println("Selecione o item que deseja comprar");
+			opcao = controleEntradaDados(scanUser.nextLine(), 1, itens.size()) - 1; // captura o nome da loja
 			
 			// atraves do que foi selecionado pelo usuario é colocado o item em seu carrinho
 			itemSelecionado = itens.get(opcao); 
@@ -254,5 +250,41 @@ public class MainApp {
 		//Nao deseja comprar
 		return false;
     }
+    
+    //Método que serve para controlar entrada de dados realizada pelo usuário para que digite o correto
+    private static int controleEntradaDados(String opcaoEntrada, int min, int max)  
+    {
+    	boolean condicao = true;
+    	int opcao = 0;
+    	
+    	while (condicao) {
+    		
+    		//Verifica se vai dar o erro de conversão do parseInt e se dar pede para digitar novamente
+    		try 
+    		{
+    			opcao = Integer.parseInt(opcaoEntrada); //Pode entrar no catch ou não
+    			condicao = false;
+    		} 
+    		catch (NumberFormatException e) 
+    		{
+    			System.out.println("Entrada de dado inválida. Tente novamente:");
+    			condicao = true;
+    			opcaoEntrada = scanUser.nextLine();
+    		}
+    		finally 
+    		{
+    			//Caso não dê o erro de conversão para int verificar se está dentro das opções desejadas
+        		if (condicao == false) {
+        			if (opcao < min || opcao > max) {
+        				condicao = true; //Opção errada então volta a pedir ao usuário digitar novamente
+        				System.out.println("Entrada de dado inválida. Tente novamente:");
+        				opcaoEntrada = scanUser.nextLine();
+        			}
+        		} 
+    		}
+    	}
+    	
+    	return opcao;
+    } 
 }
 	
