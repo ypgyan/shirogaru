@@ -286,20 +286,20 @@ public class MainApp {
 	    			Listagem.listarItensCarrinho(cart);
 	    			opcao = controleEntradaDados(scanUser.nextLine(), 1, cart.size())-1;
 	    			itemCart = cart.get(opcao);
-	    			itemEstoque = Busca.pegaItem(itens ,itemCart.getItem().getLoja().getNome(), itemCart.getItem().getProduto().getCodigo());
-	    			System.out.println(itemEstoque);
-	    			if (itemEstoque == null) {
-						System.out.println("vazio");
-					}else {
-						System.out.println("oloooko");
-					}
+	    			
+	    			
+	    			// Referencia do produto
+	    			int pos = itens.indexOf(itemCart.getItem());
+	    			itemEstoque = itens.get(pos);
+	    			int qtd = itemCart.getItem().getQuantidade();
+	    			
 	    			break;
 	    		
 	    		case 2: // O usuario faz a compra finalizando o carrinho.
 	    			
 	    			break;
 	    		
-	    		case 3: // Encerra o carrinho e retorna o estoque doos produtos.
+	    		case 3: // Encerra o carrinho e retorna o estoque dos produtos.
 	    			
 	    			break;
 	    			
