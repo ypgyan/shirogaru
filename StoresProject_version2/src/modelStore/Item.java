@@ -44,7 +44,7 @@ public class Item implements Comparable<Item> {
 	@Override
 	public String toString() 
 	{
-		return this.loja.getId() + " " + String.format("%-10s", this.produto) + " " + String.format("%-5d %.2f", this.quantidade, this.preco);
+		return this.loja.getId() + " " + String.format("%-10s", this.produto) + " " + String.format("%d %-5s R$ %.2f", this.quantidade, "unid",this.preco);
 	}
 
 	@Override

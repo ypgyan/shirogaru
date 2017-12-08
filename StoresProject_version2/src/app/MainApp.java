@@ -20,9 +20,11 @@ public class MainApp {
     {
     	try {
     		Map<String, Loja> lojas = importarLojas("Database/lojas.txt");
-    		List<Item> itens = extrairItens(lojas, "Database/produtos.txt");
+    		// Passando como referencia para pegar os produtos sem ler o arquivo duas vezes.
+    		Map<Integer, Produto> produtos = new HashMap<>();
+    		List<Item> itens = extrairItens(lojas, produtos ,"Database/produtos.txt");
     		
-    		menu(lojas, itens);
+    		menu(lojas, itens, produtos);
     	    //Busca.todosItens(itens);
     	    //Busca.codigoProduto(itens, 1003);
     	}
@@ -63,12 +65,10 @@ public class MainApp {
 
 
     /* Import the products from the file and put all of them on respective items */
-    public static List<Item> extrairItens(Map<String, Loja> lojas, String nomeArq) throws FileNotFoundException
+    public static List<Item> extrairItens(Map<String, Loja> lojas, Map<Integer, Produto> produtos,String nomeArq) throws FileNotFoundException
     {
     	//String pathArq = ClassLoader.getSystemResource(nomeArq).getPath();
     	Scanner scanProdutos = new Scanner(new File(nomeArq));
-    	
-    	Map<Integer, Produto> produtos = new HashMap<>();
     	List<Item> itens = new ArrayList<>();
     	int countLine = 0;
     	
@@ -122,7 +122,7 @@ public class MainApp {
     }
     
     /* Menu que interage com o usuário final do sistema */
-    public static void menu (Map<String, Loja> lojas, List<Item> itens) 
+    public static void menu (Map<String, Loja> lojas, List<Item> itens, Map<Integer, Produto> produtos) 
     {
     	//Menu para o usuario que chamar a classe aplicacao
         
@@ -134,7 +134,7 @@ public class MainApp {
         boolean chamadaCompra = false;
         String msgErro = "Entrada de dado inválida. Tente novamente:"; 
 		
-        //Faz o menu enquanto o opcao continuar ser menor que zero
+        //Faz o menu enquanto o opcao continuar ser menor que zero.
         do{
         	// Caso o usuario ja tenho feito uma compra o carrinho sera mostrado
         	if (cart.size() > 0) {
@@ -145,7 +145,7 @@ public class MainApp {
         	// Mostra as opções disponiveis no sistema.
         	System.out.println("Escolha uma opcao da busca desejada dos itens:");
 			System.out.println("1 - Por Loja\n2 - Por Nome do produto\n3 - Por Tipo\n4 - Código do produto"
-					+ "\n5 - Todos os itens do sistema\n6 - Alterar carrinho (Em construção)\n0 - Encerrar Sistema");
+					+ "\n5 - Todos os itens do sistema\n6 - Alterar carrinho\n0 - Encerrar Sistema");
 			
 			opcao = controleEntradaDados(scanUser.nextLine(), 0, 100, msgErro, msgErro);
 			
@@ -192,7 +192,7 @@ public class MainApp {
         			break;
         			
         		case 5: //busca por todos os produtos
-        			System.out.println("Todos os produtos cadastrados do sistesma sao:");
+        			System.out.println("Todos os produtos cadastrados do sistema:");
         			itensFiltrados = itens;
         			Collections.sort(itens);
         			chamadaCompra = true;
@@ -296,7 +296,7 @@ public class MainApp {
     		Listagem.listarItensCarrinho(cart);
     		Listagem.pularLinha(1);
     		System.out.println("1 - Finalizar compras\n2 - Adicionar determinado produto"
-    							+ "\n3 - Remover determinado produto\n4 - Cancelar carrinho\n0 - Voltar ao menu principal.");
+    							+ "\n3 - Remover quantidade do produto\n4 - Excluir produto\n5 - Cancelar carrinho\n0 - Voltar ao menu principal.");
     		
     		String msgErro = "Não existe essa opção. Tente novamente.";
     		opcao1 = controleEntradaDados(scanUser.nextLine(), 0, 4, msgErro, msgErro);
@@ -360,7 +360,6 @@ public class MainApp {
 		    			Listagem.pularLinha(1);
 		    			
 		    			if (opcao2 == 0) { break; } //Sai do loop porque o usuário decidiu não cancelar mais
-		    			
 		    			ItemCarrinho itemCartRemover = cart.get(opcao2 - 1); //Pega o itemCarrinho da opção escolhida
 		    			Item itemReporEstoque = itemCartRemover.getItem(); //Pega o item para colocar as unidades no estoque novamente
 		    			
@@ -378,12 +377,38 @@ public class MainApp {
 	    			}
 	    			break;
 	    			
-	    		case 4: // Cancelar o carrinho de compras
+	    		case 4: // Exclui produto do carrinho.
+	    			while (true) {
+	    				System.out.println("Escolha o produto que deseja remover totalmente:");
+		    			System.out.println("0 - Voltar");
+		    			Listagem.listarItensCarrinho(cart);
+		    			opcao2 = controleEntradaDados(scanUser.nextLine(), 0, cart.size(), msgErro, msgErro);
+		    			Listagem.pularLinha(1);
+		    			
+		    			if (opcao2 == 0) { break; } //Sai do loop porque o usuário decidiu não cancelar mais
+		    			ItemCarrinho itemCartRemover = cart.get(opcao2 - 1); //Pega o itemCarrinho da opção escolhida
+		    			Item itemReporEstoque = itemCartRemover.getItem(); //Pega o item para colocar as unidades no estoque novamente
+		    			// Pega a quantidade que a no carrinho.
+		    			quantidade = itemCartRemover.getQuantidade();
+		    			
+		    			// Basta remover do carrinho e adicionar novamente no estoque do item
+		    			itemCartRemover.removeQtdItens(quantidade);
+		    			itemReporEstoque.inserirEstoque(quantidade);
+		    			cart.remove(opcao2 - 1);
+		    			System.out.println("Produto removido do carrinho.");
+	    			}
+	    			break;
+	    			
+	    		case 5: // Cancelar o carrinho de compras
 	    			System.out.println("Deseja realmente cancelar suas compras?\n1 - Sim\n2 - Não");
 	    			opcao2 = controleEntradaDados(scanUser.nextLine(), 1, 2, msgErro, msgErro);
 	    			
 	    			// Caso o usuário final deseje realmente cancelar é dado um clear no carrinho 
-	    			if (opcao2 == 1) { 
+	    			if (opcao2 == 1) {
+	    				// Remove os produtos do carrinho e devolve ao estoque.
+	    				for(ItemCarrinho it : cart) {
+	    					it.getItem().inserirEstoque(it.getQuantidade());
+	    				}
 	    				cart.clear();
 	    				System.out.println("Carrinho cancelado com sucesso.");
 	    				opcao1 = 0; // Volta ao menu principal
