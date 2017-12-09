@@ -1,5 +1,8 @@
 package app;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,29 +34,39 @@ class Listagem {
 		}
     }
     
-    public static void listarItens(List<Item> itens) 
+    public static void listarItens(List<Item> itens, int mode) 
     { 	
     	int unidades = 0;
     	
     	List<Loja> lojas = new LinkedList<>();
     	List<Produto> produtos = new LinkedList<>();
+    	double valorTotal = 0.0;
     	
     	for (int i = 0; i < itens.size(); i++) {
     		System.out.println((i+1) + " - " + itens.get(i).toString());
     		unidades += itens.get(i).getQuantidade();
+    		if (mode == 1) {
+    			valorTotal += ((itens.get(i).getQuantidade()) * (itens.get(i).getPreco()));
+			}else{
+				// Recebe a loja e compara com um list para contar sem repetir a mesma loja.
+	    		Loja loja = itens.get(i).getLoja();
+	    		if(!(lojas.contains(loja))) {
+	    			lojas.add(loja);
+	    		}
+			}
     		
-    		// Recebe a loja e compara com um list para contar sem repetir a mesma loja.
-    		Loja loja = itens.get(i).getLoja();
-    		if(!(lojas.contains(loja))) {
-    			lojas.add(loja);
-    		}
     		// Recebe o produto e compara com um list para contar sem repetir o mesma produto.
     		Produto produto = itens.get(i).getProduto();
     		if (!(produtos.contains(produto))) {
     			produtos.add(produto);
 			}
     	}
-    	System.out.println("\nLojas: "+ lojas.size() +", Produtos: "+produtos.size()+", Total de Unidades: "+unidades);
+    	if (mode == 0) {
+    		System.out.println("\nLojas: "+ lojas.size() +", Produtos: "+produtos.size()+", Total de Unidades: "+unidades);
+		}else {
+			System.out.println("Produtos: "+produtos.size()+", Total de Unidades: "+unidades+", Valor total: R$ "+valorTotal);
+		}
+    	
     }
     
     public static void listarLojas(List<Loja> lojas) 
@@ -69,5 +82,39 @@ class Listagem {
     	for (Produto p : produtos) {
     		System.out.println(p);
     	}
+    }
+    
+    public static void historicoCompras(List<Carrinho> compras) {
+    	List<ItemCarrinho> historico = new ArrayList<>();
+    	// Passa todos os itens de compras para um arrayList
+    	int tam = compras.size();
+    	System.out.println(tam);
+    	for(int i = 0; i < compras.size(); i++) {
+    		 List<ItemCarrinho> aux = new ArrayList<>();
+    		 aux.addAll(compras.get(i).getItensCarrinho());
+    		 System.out.println(aux.isEmpty());
+    		 for (ItemCarrinho itemCarrinho : aux) {
+    			 System.out.println(itemCarrinho);
+    		 }
+    	}
+    	System.out.println(historico.size());
+    	
+    	Collections.sort(historico, new Comparator<ItemCarrinho>() {
+			@Override
+			public int compare (ItemCarrinho itemc1 , ItemCarrinho itemc2) {
+				// Comparação por ID da loja
+				int comp = itemc1.getItem().getLoja().getId().compareTo(itemc2.getItem().getLoja().getId());
+				if (comp == 0) {
+					// Caso lojas iguais compara pelo tipo.
+					comp = itemc1.getItem().getProduto().getTipoProd().compareTo(itemc2.getItem().getProduto().getTipoProd());
+					if (comp == 0) {
+						// Caso o tipo seja igual compara pelo nome do produto
+						comp = itemc1.getItem().getProduto().getNome().compareTo(itemc2.getItem().getProduto().getNome());
+					}
+				}
+				return comp;
+			}
+		});
+    	
     }
 }

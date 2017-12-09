@@ -11,6 +11,7 @@ public class Livro extends Produto {
 		super(nome, cod);
 		this.autor = autor;
 		this.nPaginas = nPag;
+		super.setTipoProd("Livro");
 	}
 	
 	

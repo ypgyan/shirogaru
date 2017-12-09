@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -136,6 +137,8 @@ public class MainApp {
 		
         //Faz o menu enquanto o opcao continuar ser menor que zero.
         do{
+        	// Variavel que define se lista o valor total ou lojas.
+            int mode = 0;
         	// Caso o usuario ja tenho feito uma compra o carrinho sera mostrado
         	if (cart.size() > 0) {
         		System.out.println("CARRINHO");
@@ -145,7 +148,8 @@ public class MainApp {
         	// Mostra as opções disponiveis no sistema.
         	System.out.println("Escolha uma opcao da busca desejada dos itens:");
 			System.out.println("1 - Por Loja\n2 - Por Nome do produto\n3 - Por Tipo\n4 - Código do produto"
-					+ "\n5 - Todos os itens do sistema\n6 - Alterar carrinho\n0 - Encerrar Sistema");
+					+ "\n5 - Todos os itens do sistema\n6 - Alterar carrinho"
+					+ "\n7 - Historico de compras\n0 - Encerrar Sistema");
 			
 			opcao = controleEntradaDados(scanUser.nextLine(), 0, 100, msgErro, msgErro);
 			
@@ -166,6 +170,7 @@ public class MainApp {
         			if (opcao2 == 0) { break; } 
         			itensFiltrados = Busca.porLoja(itens, listLojas.get(opcao2 - 1));
         			chamadaCompra = true;
+        			mode = 1;
         			break;
         		
         		case 2: //busca por nome
@@ -207,13 +212,17 @@ public class MainApp {
         			chamadaCompra = false;
         			break;
         			
+        		case 7:
+        			Listagem.historicoCompras(compras);
+        			break;
+        			
         		default:
         			chamadaCompra = false;
         			System.out.println("Nao existe essa busca");
         	}
         	
         	if ((chamadaCompra) && !itensFiltrados.isEmpty()) {
-        		Listagem.listarItens(itensFiltrados);
+        		Listagem.listarItens(itensFiltrados,mode);
         		tcgBuy(itensFiltrados, cart);
         	}
         	System.out.println("############################################################");
@@ -247,7 +256,7 @@ public class MainApp {
 				System.out.println("Selecione o item que deseja comprar:");
 				// Lista o resultado da pesquisa outra
 				System.out.println("0 - Voltar");
-				Listagem.listarItens(itens);
+				Listagem.listarItens(itens, 0);
 				Listagem.pularLinha(1);
 				
 				//Escolher opção de escolha
@@ -314,8 +323,9 @@ public class MainApp {
 	    			
 	    			//Cliente finaliza a compra e é criado 
 	    			if (opcao2 == 1) { 
-	    				Carrinho compraFechada = new Carrinho(cart, null); //Colocar a data no lugar do null
+	    				Carrinho compraFechada = new Carrinho(cart, new Date()); //Colocar a data no lugar do null
 	    				compras.add(compraFechada); //Adiciona a compra na lista de compras para registro
+	    				
 	    				cart.clear(); // Limpa o cart que é o "carrinho" que o cliente estava usando
 	    				System.out.println("Arigatou Gozaimasu pela compra");
 	    				opcao1 = 0; //Volta para menu principal

@@ -4,6 +4,7 @@ public abstract class Produto implements Comparable<Produto> {
 	/* Atributos */
 	private String nome;
 	private int codigo;
+	private String tipoProd;
     
 	/* Construtor */
 	public Produto(String nome, int cod) 
@@ -21,6 +22,15 @@ public abstract class Produto implements Comparable<Produto> {
 	public int getCodigo() 
 	{
 		return this.codigo;
+	}
+	
+	public String getTipoProd() {
+		return this.tipoProd;
+	}
+	
+	// Metodo friendly para setar o tipo do produto atraves das subclasse quando são construidas.
+	void setTipoProd(String tipo) {
+		this.tipoProd = tipo;
 	}
 	
 	@Override

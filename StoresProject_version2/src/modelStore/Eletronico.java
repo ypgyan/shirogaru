@@ -4,7 +4,7 @@ public class Eletronico extends Produto {
 	/* Atributos */
 	private String marca;
 	private String cor;
-	private double peso;
+	private double peso; 
 	
 	
 	public Eletronico(String nome, int cod, String marca, String cor, double peso) {
@@ -12,6 +12,7 @@ public class Eletronico extends Produto {
 		this.marca = marca;
 		this.cor = cor;
 		this.peso = peso;
+		super.setTipoProd("Eletronico");
 	}
 	
 	

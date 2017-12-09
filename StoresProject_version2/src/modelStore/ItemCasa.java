@@ -12,7 +12,9 @@ public class ItemCasa extends Produto{
 		super(nome, cod);
 		this.cor = cor;
 		this.material = material;
+		super.setTipoProd("Item casa");
 		this.tipo = tipo;
+		
 	}
 
 	

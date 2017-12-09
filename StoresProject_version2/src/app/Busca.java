@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 /* This class is responsible for searching */
 class Busca {
@@ -90,7 +91,18 @@ class Busca {
 		List<Item> codigoProdutoFiltrado = new ArrayList<>();
 		
 		//First has to sort the elements by where the priority is code then price
-		Collections.sort(itens, new ComparaCodPreco());
+		Collections.sort(itens,  new Comparator<Item>() {
+			@Override
+			public int compare (Item item1 , Item item2) {
+				
+				int comp = item1.getProduto().compareTo(item2.getProduto());
+				
+				if (comp == 0) {
+					comp = (item1.compareTo(item2));
+				}
+				return comp;
+			}
+		});
 		
 		for (Item it : itens) {
 			if (it.getProduto().getCodigo() == codigo) {
