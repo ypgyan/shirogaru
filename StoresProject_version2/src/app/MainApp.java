@@ -187,23 +187,28 @@ public class MainApp {
         List<ItemCarrinho> cart = new ArrayList<>();
         List<Item> itensFiltrados = null;
         int opcao = 0;
+        /* Pega a quantidade de compras antes de serem feitas modificações */
+        Integer quantidadeComprasAntes = new Integer(compras.size()); 
         boolean chamadaCompra = false;
         String msgErro = "Entrada de dado inválida. Tente novamente:";
         String msgFiltroVazio = ""; // Serve para mostrar mensagem caso a busca não contenha nenhum elemento
 		
+        System.out.println("Bem-vindo a Shirugueri store pesadão. XD\n\n");
+        
         //Faz o menu enquanto o opcao continuar ser menor que zero.
         do{
         	// Variavel que define se lista o valor total ou lojas.
             int mode = 0;
-        	// Caso o usuario ja tenho feito uma compra o carrinho sera mostrado
+        	// Caso o usuario ja tenho feito uma compra o carrinho será mostrado
         	if (cart.size() > 0) {
         		System.out.println("CARRINHO");
         		Listagem.listarItensCarrinho(cart);
         		Listagem.pularLinha(2);
 			}
         	// Mostra as opções disponiveis no sistema.
-        	System.out.println("Escolha uma opcao da busca desejada dos itens:");
-			System.out.println("1 - Por Loja\n2 - Por Nome do produto\n3 - Por Tipo\n4 - Código do produto"
+        	System.out.println("Escolha uma opcão:");
+			System.out.println("1 - Busca produtos por Loja\n2 - Busca de produtos por nome"
+					+ "\n3 - Busca de produtos por Tipo\n4 - Busca de produtos por código"
 					+ "\n5 - Todos os itens do sistema\n6 - Seu carrinho"
 					+ "\n7 - Historico de compras\n0 - Encerrar Sistema");
 			
@@ -212,7 +217,7 @@ public class MainApp {
         	Listagem.pularLinha(2);
         	switch (opcao) {
         		case 0:
-        			salvarSistema(itens,lojas,compras);
+        			salvarSistema(itens, lojas, compras, quantidadeComprasAntes);
         			System.out.println("Agradecemos a preferência!!\n VOLTE SEMPRE");
         			chamadaCompra = false;
         			break;
@@ -235,7 +240,7 @@ public class MainApp {
         			System.out.println("Insira o nome do produto que deseja buscar:");
         			String nomeProd = scanUser.nextLine();
         			itensFiltrados = Busca.nomeProduto(itens, nomeProd);
-        			msgFiltroVazio = "Não foi possível encontrar nenhum produto";
+        			msgFiltroVazio = "Não foi possível encontrar nenhum produto contendo esse nome";
         			chamadaCompra = true;
         			break;
         		
@@ -292,7 +297,7 @@ public class MainApp {
         		Listagem.listarItens(itensFiltrados,mode);
         		tcgBuy(itensFiltrados, cart);
         	}
-        	else if (itensFiltrados.isEmpty()) {
+        	else if (itensFiltrados != null && itensFiltrados.isEmpty()) {
         		System.out.println(msgFiltroVazio);
         	}
         	
@@ -310,15 +315,14 @@ public class MainApp {
     	
     	while (decision == 1) {
     		// Pergunta para o usuário se ele realmente deseja comprar um dos pordutos (Adicionar no carrinho)
-        	System.out.println("Você deseja: \n1 - Comprar algum item"
-    							+ "\n2 - Voltar para o menu principal");
+        	System.out.println("Você deseja:\n0 - Voltar para o menu principal\n1 - Comprar algum item");
         	
         	String msgErro = "Entrada de dado inválida. Tente novamente:";
         	
-        	decision = controleEntradaDados(scanUser.nextLine(), 1, 2, msgErro, msgErro);
+        	decision = controleEntradaDados(scanUser.nextLine(), 0, 1, msgErro, msgErro);
         	Listagem.pularLinha(2);
         	
-        	if (decision == 2) //O usuário deseja voltar para o menu principal
+        	if (decision == 0) //O usuário deseja voltar para o menu principal
         		return;
         	
         	int opcao = 1;
@@ -372,12 +376,14 @@ public class MainApp {
     {
     	int opcao1, opcao2, quantidade;
     	do {
-    		System.out.println("O que gostaria de fazer:");
     		// Lista os itens do carrinho.
+    		System.out.println("Seu carrinho:");
     		Listagem.listarItensCarrinho(cart);
     		Listagem.pularLinha(1);
-    		System.out.println("1 - Finalizar compras\n2 - Adicionar determinado produto"
-    							+ "\n3 - Remover quantidade do produto\n4 - Excluir produto\n5 - Cancelar carrinho\n0 - Voltar ao menu principal.");
+    		System.out.println("O que gostaria de fazer:");
+    		System.out.println("1 - Finalizar compras\n2 - Adicionar unidades dos produtos"
+    							+ "\n3 - Remover unidades dos produto\n4 - Excluir produto"
+    							+ "\n5 - Cancelar carrinho\n0 - Voltar ao menu principal.");
     		
     		String msgErro = "Não existe essa opção. Tente novamente.";
     		opcao1 = controleEntradaDados(scanUser.nextLine(), 0, 5, msgErro, msgErro);
@@ -452,13 +458,21 @@ public class MainApp {
 		    			String msgErro2 = "Não se pode remover com a quantidade inserida";
 		    			quantidade = controleEntradaDados(scanUser.nextLine(), 1, itemCartRemover.getQuantidade(), msgErro, msgErro2);
 		    			
-		    			// Basta remover do carrinho e adicionar novamente no estoque do item
+		    			// Remover do carrinho e adicionar novamente no estoque do item
 		    			itemCartRemover.removeQtdItens(quantidade);
 		    			itemReporEstoque.inserirEstoque(quantidade);
 		    			
 		    			// Deve checar se a unidade do item removido do carrinho está zero. Logo ele deve sair do carrinho
-		    			if (itemCartRemover.getQuantidade() == 0)
-		    				cart.remove(opcao2 - 1); // Remove a referência do carrinho através do index
+		    			if (itemCartRemover.getQuantidade() == 0) {
+		    				cart.remove(opcao2 - 1); // Remove o item do carrinho através do index
+		    				
+		    				// Após remover o item verificar se existe algum item no carrinho do cliente
+		    				if (cart.isEmpty()) {
+		    					opcao1 = 0; // Para voltar ao menu principal
+		    					System.out.println("Carrinho está vazio. Redirecionando para o menu principal");
+		    					break; // Sai da opção que contém while = true
+		    				}
+		    			}
 	    			}
 	    			break;
 	    			
@@ -480,9 +494,11 @@ public class MainApp {
 		    			itemCartRemover.removeQtdItens(quantidade);
 		    			itemReporEstoque.inserirEstoque(quantidade);
 		    			cart.remove(opcao2 - 1);
-		    			System.out.println("Produto removido do carrinho.");
+		    			System.out.println("Produto removido do carrinho");
 		    			if (cart.isEmpty()) {
+		    				System.out.println("Carrinho está vazio. Redirecionando para o menu principal");
 		    				opcao1 = 0;
+		    				break; // Sai da opção de exclui o produto do carrinho
 		    			}
 	    			}
 	    			break;
@@ -494,18 +510,17 @@ public class MainApp {
 	    			// Caso o usuário final deseje realmente cancelar é dado um clear no carrinho 
 	    			if (opcao2 == 1) {
 	    				// Remove os produtos do carrinho e devolve ao estoque.
-	    				for(ItemCarrinho it : cart) {
-	    					it.getItem().inserirEstoque(it.getQuantidade());
+	    				for(ItemCarrinho itc : cart) {
+	    					itc.getItem().inserirEstoque(itc.getQuantidade());
 	    				}
 	    				cart.clear();
-	    				System.out.println("Carrinho cancelado com sucesso.");
+	    				System.out.println("Carrinho cancelado com sucesso. Redirecionando para o menu principal");
 	    				opcao1 = 0; // Volta ao menu principal
 	    			}
 	    			break;
     		}
     	} while(opcao1 != 0);
     }
-    
     
     //Método que serve para controlar entrada de dados realizada pelo usuário para que digite o correto
     private static int controleEntradaDados(String opcaoEntrada, int min, int max, String msg1, String msg2)  
@@ -543,8 +558,15 @@ public class MainApp {
     	return opcao;
     }
     
-    // Serializa o essencial para o sistema, e joga dentro de um arquivo .dat
-    public static void salvarSistema(List<Item> itens, Map<String,Loja> lojas, List<Carrinho> compras) throws IOException {
+    /* Serializa o essencial para o sistema, e joga dentro de um arquivo .dat */
+    public static boolean salvarSistema(List<Item> itens, Map<String, Loja> lojas, List<Carrinho> compras, Integer qtdComprasPassada) throws IOException {
+    	
+    	Integer qtdComprasRecente = new Integer(compras.size()); // Pega a quantidade de compras recentes
+    	
+    	/* Caso a as quantidades dos itens sejam iguais é porque não foi realizada nenhuma compra, 
+    	logo não é necessário escrever no arquivo binário de saída exatamente o mesmo estado anterior */
+    	if (qtdComprasPassada.equals(qtdComprasRecente))
+    		return false; // Não salvo, pois não teve nenhuma alteração
     	
     	FileOutputStream fos = new FileOutputStream("Database/sistema.dat");
 	    ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -553,7 +575,8 @@ public class MainApp {
 	    oos.writeObject(lojas);
 	    oos.writeObject(compras);
 	    oos.close();
-    	//TODO - fazer aqui
+	    
+	    return true; // Salvo com sucesso
     }
 }
 	

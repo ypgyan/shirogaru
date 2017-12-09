@@ -32,7 +32,7 @@ class Listagem {
 			for (int i = 0; i < cart.size(); i++) {
 	    		System.out.println((i+1) + " - " + cart.get(i).toString());
 	    		valorTotal += ((cart.get(i).getQuantidade()) * (cart.get(i).getItem().getPreco()));
-	    		unidades += cart.get(i).getItem().getQuantidade();
+	    		unidades += cart.get(i).getQuantidade();
 	    		
 	    		// Recebe a loja e compara com um list para contar sem repetir a mesma loja.
 	    		Loja loja = cart.get(i).getItem().getLoja();
@@ -50,7 +50,10 @@ class Listagem {
     }
     
     public static void listarItens(List<Item> itens, int mode) 
-    { 	
+    {
+    	/* Obs: mode define se a listagem será quando a opção escolhida de busca escolhida pelo usuário foi por loja
+    	Caso seja mode == 1, caso contrário será mode == 0 */
+    	
     	int unidades = 0;
     	
     	List<Loja> lojas = new LinkedList<>();
@@ -79,7 +82,7 @@ class Listagem {
     	if (mode == 0) {
     		System.out.println("\nLojas: "+ lojas.size() +", Produtos: "+produtos.size()+", Total de Unidades: "+unidades);
 		}else {
-			System.out.println("Produtos: "+produtos.size()+", Total de Unidades: "+unidades+", Valor total: R$ "+valorTotal);
+			System.out.println("\nProdutos: "+produtos.size()+", Total de Unidades: "+unidades+", Valor total: R$ "+valorTotal);
 		}
     	
     }
@@ -112,19 +115,20 @@ class Listagem {
 			@Override
 			public int compare (ItemCarrinho itemc1 , ItemCarrinho itemc2) {
 				// Comparação por ID da loja
-				int comp = itemc1.getItem().getLoja().getId().compareTo(itemc2.getItem().getLoja().getId());
-				if (comp == 0) {
+				int comparacao = itemc1.getItem().getLoja().getId().compareTo(itemc2.getItem().getLoja().getId());
+				if (comparacao == 0) {
 					// Caso lojas iguais compara pelo tipo.
-					comp = itemc1.getItem().getProduto().getTipoProd().compareTo(itemc2.getItem().getProduto().getTipoProd());
-					if (comp == 0) {
+					comparacao = itemc1.getItem().getProduto().getTipoProd().compareTo(itemc2.getItem().getProduto().getTipoProd());
+					if (comparacao == 0) {
 						// Caso o tipo seja igual compara pelo nome do produto
-						comp = itemc1.getItem().getProduto().getNome().compareTo(itemc2.getItem().getProduto().getNome());
+						comparacao = itemc1.getItem().getProduto().getNome().compareTo(itemc2.getItem().getProduto().getNome());
 					}
 				}
-				return comp;
+				return comparacao;
 			}
 		});
-    	listarItensCarrinho(historico);
     	
+    	listarItensCarrinho(historico);
     }
+    
 }

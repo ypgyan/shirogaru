@@ -95,12 +95,14 @@ class Busca {
 			@Override
 			public int compare (Item item1 , Item item2) {
 				
-				int comp = item1.getProduto().compareTo(item2.getProduto());
+				// Usa o compareTo de Produto comparando pelo codigo
+				int comparacao = item1.getProduto().compareTo(item2.getProduto()); 
 				
-				if (comp == 0) {
-					comp = (item1.compareTo(item2));
+				if (comparacao == 0) {
+					// Usa o compareTo de Item comparando pelo preço
+					comparacao = (item1.compareTo(item2)); 
 				}
-				return comp;
+				return comparacao;
 			}
 		});
 		
