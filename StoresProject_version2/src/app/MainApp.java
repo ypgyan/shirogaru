@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 import modelStore.*; 
 
@@ -66,7 +65,7 @@ public class MainApp {
 
 
     /* Import the products from the file and put all of them on respective items */
-    public static List<Item> extrairItens(Map<String, Loja> lojas, Map<Integer, Produto> produtos,String nomeArq) throws FileNotFoundException
+    public static List<Item> extrairItens(Map<String, Loja> lojas, Map<Integer, Produto> produtos, String nomeArq) throws FileNotFoundException
     {
     	//String pathArq = ClassLoader.getSystemResource(nomeArq).getPath();
     	Scanner scanProdutos = new Scanner(new File(nomeArq));
@@ -128,7 +127,7 @@ public class MainApp {
     	//Menu para o usuario que chamar a classe aplicacao
         
     	// Inicialiação das variaveis
-    	List<Carrinho> compras = new LinkedList<>();
+    	List<Carrinho> compras = new ArrayList<>();
         List<ItemCarrinho> cart = new ArrayList<>();
         List<Item> itensFiltrados = null;
         int opcao = 0;
@@ -158,7 +157,6 @@ public class MainApp {
         		case 0:
         			System.out.println("Agradecemos a preferência!!\n VOLTE SEMPRE");
         			chamadaCompra = false;
-        			
         			break;
         			
         		case 1: //busca por loja
@@ -214,6 +212,7 @@ public class MainApp {
         			
         		case 7:
         			Listagem.historicoCompras(compras);
+        			chamadaCompra = false;
         			break;
         			
         		default:
@@ -322,11 +321,14 @@ public class MainApp {
 	    			opcao2 = controleEntradaDados(scanUser.nextLine(), 1, 2, msgErro, msgErro);
 	    			
 	    			//Cliente finaliza a compra e é criado 
-	    			if (opcao2 == 1) { 
-	    				Carrinho compraFechada = new Carrinho(cart, new Date()); //Colocar a data no lugar do null
+	    			if (opcao2 == 1) {
+	    				List<ItemCarrinho> itensCarrinho = new ArrayList<>();
+	    				itensCarrinho.addAll(cart);
+	    				Carrinho compraFechada = new Carrinho(itensCarrinho, new Date());
 	    				compras.add(compraFechada); //Adiciona a compra na lista de compras para registro
 	    				
-	    				cart.clear(); // Limpa o cart que é o "carrinho" que o cliente estava usando
+	    				cart.clear(); // Limpa o cart que é o "carrinho" que o cliente e estava usando
+	    				
 	    				System.out.println("Arigatou Gozaimasu pela compra");
 	    				opcao1 = 0; //Volta para menu principal
 	    			}

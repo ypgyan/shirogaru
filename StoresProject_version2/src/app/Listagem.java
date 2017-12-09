@@ -85,19 +85,13 @@ class Listagem {
     }
     
     public static void historicoCompras(List<Carrinho> compras) {
+    	// Armazena todas os carrinhos de compras feitas até o para ordenar segundo os parâmetros pedidos
     	List<ItemCarrinho> historico = new ArrayList<>();
-    	// Passa todos os itens de compras para um arrayList
-    	int tam = compras.size();
-    	System.out.println(tam);
-    	for(int i = 0; i < compras.size(); i++) {
-    		 List<ItemCarrinho> aux = new ArrayList<>();
-    		 aux.addAll(compras.get(i).getItensCarrinho());
-    		 System.out.println(aux.isEmpty());
-    		 for (ItemCarrinho itemCarrinho : aux) {
-    			 System.out.println(itemCarrinho);
-    		 }
+    	
+    	// Passa todos os itens de compras para um arrayList    	
+    	for(Carrinho carrinho : compras) {
+    		historico.addAll(carrinho.getItensCarrinho());
     	}
-    	System.out.println(historico.size());
     	
     	Collections.sort(historico, new Comparator<ItemCarrinho>() {
 			@Override
@@ -116,5 +110,8 @@ class Listagem {
 			}
 		});
     	
+    	for (ItemCarrinho it : historico) {
+    		System.out.println(it);
+    	}
     }
 }

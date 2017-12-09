@@ -6,7 +6,7 @@ import java.util.Date;
 public class Carrinho {
 	/* Atributos */
 	private List<ItemCarrinho> itensCarrinho;
-	private Date dataHora;
+	private Date dataHora;	
 	
 	/* Construtor */
 	public Carrinho(List<ItemCarrinho> itensCarrinho, Date dataHora) {
@@ -22,5 +22,27 @@ public class Carrinho {
 	public Date getDataHora() {
 		return this.dataHora;
 	}
-
+	
+	@Override
+	public String toString() {
+		String itensCompra = "";
+		
+		for (ItemCarrinho itc : this.itensCarrinho) {
+			itensCompra += itc.toString() + '\n';
+		}
+		
+		if (itensCompra != "") {
+			itensCompra += "Data e horário da compra: " + this.dataHora; 
+		}
+		
+		return itensCompra;
+	}
+	
+	//Calcula o preço total dos itens no carrinho da compra realizada
+	public double precoTotal() {
+		// TODO
+		double preco = 0;
+		
+		return preco;
+	}
 }
