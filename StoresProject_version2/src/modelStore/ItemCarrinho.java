@@ -1,6 +1,12 @@
 package modelStore;
 
-public class ItemCarrinho {
+import java.io.Serializable;
+
+public class ItemCarrinho implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1545927667744145405L;
 	/* Atributos */
 	private int quantidade;
 	private Item item;

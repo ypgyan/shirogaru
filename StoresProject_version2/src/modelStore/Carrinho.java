@@ -1,9 +1,14 @@
 package modelStore;
 
 import java.util.List;
+import java.io.Serializable;
 import java.util.Date;
 
-public class Carrinho {
+public class Carrinho implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -147997175239550110L;
 	/* Atributos */
 	private List<ItemCarrinho> itensCarrinho;
 	private Date dataHora;	

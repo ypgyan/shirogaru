@@ -1,6 +1,10 @@
 package modelStore;
 
 public class ItemCasa extends Produto{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1739917250841450028L;
 	/* Atributos */
 	private String material;
 	private String cor;

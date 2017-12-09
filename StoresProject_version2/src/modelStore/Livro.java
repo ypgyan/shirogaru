@@ -1,6 +1,10 @@
 package modelStore;
 
 public class Livro extends Produto {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7771543743479052937L;
 	/* Atributos */
 	private String autor;
 	private int nPaginas;

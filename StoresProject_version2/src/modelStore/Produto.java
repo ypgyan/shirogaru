@@ -1,6 +1,12 @@
 package modelStore;
 
-public abstract class Produto implements Comparable<Produto> {
+import java.io.Serializable;
+
+public abstract class Produto implements Comparable<Produto>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1810837379289245802L;
 	/* Atributos */
 	private String nome;
 	private int codigo;

@@ -1,6 +1,12 @@
 package modelStore;
 
-public class Item implements Comparable<Item> {
+import java.io.Serializable;
+
+public class Item implements Comparable<Item>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6234200967984844710L;
 	/* Atributos */
 	private double preco;
 	private Produto produto;

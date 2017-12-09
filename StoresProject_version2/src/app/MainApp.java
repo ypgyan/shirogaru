@@ -1,8 +1,15 @@
 package app;
 
 import java.util.Scanner;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.nio.file.FileSystemNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,24 +23,75 @@ public class MainApp {
 	//Atributo static
 	private static Scanner scanUser = new Scanner(System.in);
 	
-    public static void main(String[] args)  
+    public static void main(String[] args) throws ClassNotFoundException, IOException  
     {
-    	try {
-    		Map<String, Loja> lojas = importarLojas("Database/lojas.txt");
-    		// Passando como referencia para pegar os produtos sem ler o arquivo duas vezes.
-    		Map<Integer, Produto> produtos = new HashMap<>();
-    		List<Item> itens = extrairItens(lojas, produtos ,"Database/produtos.txt");
+    	
+		// Carrega o sistema atraves de um arquivo .dat
+		List sistema = carregarSistema();
+		if (sistema.isEmpty()) {
+			System.out.println("\nFinalizado");
+		}else {
+			// Inicializa as variaveis do sistema.
+			List<Item> itens = (List<Item>) sistema.get(0);
+			Map<String, Loja> lojas = (Map<String, Loja>) sistema.get(1);
+			List<Carrinho> compras = (List<Carrinho>) sistema.get(2); 
+			// Chama o menu da loja
+			menu(lojas, itens, compras);
+		}
+		scanUser.close();
+		
+    }
+    /* Carrega o sistema atraves de um arquivo .dat
+     * retorna uma lista generica com os objetivos que estiverem no arquvio.
+      */
+    public static List carregarSistema() throws IOException, ClassNotFoundException {
+    	
+    	// cria uma lista generica para armazenar os objetos retornado do arquivo
+    	List<Object> aux = new ArrayList<>();
+    	
+    	// Inicializa as listas do sistema.
+    	List<Item> itens = new ArrayList<>();
+    	Map<String,Loja> lojas = new HashMap<>();
+    	List<Carrinho> compras = new ArrayList<>();
+    	
+	    try {	
+    	// Busca o arquivo
+		    FileInputStream fis = new FileInputStream("Database/sistema.dat");
+		    ObjectInputStream ois = new ObjectInputStream(fis);
+		    
+		    // Recupera os arquivos de acordo com a ordem que foram inseridos
+		    itens = (List<Item>) ois.readObject();
+		    lojas = (Map<String,Loja>) ois.readObject();
+		    compras = (List<Carrinho>) ois.readObject();
+		    ois.close();
+		    
+		    // Adiciona os objetos na lista para retorno.
+		    aux.add(itens);
+		    aux.add(lojas);
+		    aux.add(compras);
+		    
+		    System.out.println("Carregado do .dat");
+		    
+		    return aux;
+		    
+    	}catch(FileNotFoundException e) {
+    		try {
+    			lojas = importarLojas("Database/lojas.txt");
+        		
+        		// Passando como referencia para pegar os produtos sem ler o arquivo duas vezes.
+        		Map<Integer, Produto> produtos = new HashMap<>();
+        		itens = extrairItens(lojas, produtos ,"Database/produtos.txt");
+        		aux.add(itens);
+    		    aux.add(lojas);
+    		    aux.add(compras);
+    		    
+    		    System.out.println("Carregado dos .txt");
+    		    return aux;
+    		}catch (FileNotFoundException exception) {
+				System.out.println("Nenhum arquivo contendo dados do sistema foi encontrado.");
+				return aux;
+			}
     		
-    		menu(lojas, itens, produtos);
-    	    //Busca.todosItens(itens);
-    	    //Busca.codigoProduto(itens, 1003);
-    	}
-    	catch(FileNotFoundException e) {
-    		System.out.println("Arquivo nao encontrado");
-    	}
-    	finally {
-    		scanUser.close();
-    		System.out.println("\nFinalizado");
     	}
     }
     
@@ -122,12 +180,11 @@ public class MainApp {
     }
     
     /* Menu que interage com o usuário final do sistema */
-    public static void menu (Map<String, Loja> lojas, List<Item> itens, Map<Integer, Produto> produtos) 
+    public static void menu (Map<String, Loja> lojas, List<Item> itens, List<Carrinho> compras) throws IOException 
     {
     	//Menu para o usuario que chamar a classe aplicacao
         
     	// Inicialiação das variaveis
-    	List<Carrinho> compras = new ArrayList<>();
         List<ItemCarrinho> cart = new ArrayList<>();
         List<Item> itensFiltrados = null;
         int opcao = 0;
@@ -155,6 +212,7 @@ public class MainApp {
         	Listagem.pularLinha(2);
         	switch (opcao) {
         		case 0:
+        			salvarSistema(itens,lojas,compras);
         			System.out.println("Agradecemos a preferência!!\n VOLTE SEMPRE");
         			chamadaCompra = false;
         			break;
@@ -479,8 +537,16 @@ public class MainApp {
     	return opcao;
     }
     
-    // Serializar tudo que foi feito
-    public static void serializacaoInformacoes() {
+    // Serializa o essencial para o sistema, e joga dentro de um arquivo .dat
+    public static void salvarSistema(List<Item> itens, Map<String,Loja> lojas, List<Carrinho> compras) throws IOException {
+    	
+    	FileOutputStream fos = new FileOutputStream("Database/sistema.dat");
+	    ObjectOutputStream oos = new ObjectOutputStream(fos);
+	    
+	    oos.writeObject(itens);
+	    oos.writeObject(lojas);
+	    oos.writeObject(compras);
+	    oos.close();
     	//TODO - fazer aqui
     }
 }

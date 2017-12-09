@@ -1,7 +1,13 @@
 package modelStore;
 
-public class Loja implements Comparable<Loja> {
-    /* Atributos */
+import java.io.Serializable;
+
+public class Loja implements Comparable<Loja>, Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7439600003477099255L;
+	/* Atributos */
     private String id;
     private String nome;
     private int avaliacao; 

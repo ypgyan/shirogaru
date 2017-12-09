@@ -1,6 +1,10 @@
 package modelStore;
 
 public class Eletronico extends Produto {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -859887848632908474L;
 	/* Atributos */
 	private String marca;
 	private String cor;
