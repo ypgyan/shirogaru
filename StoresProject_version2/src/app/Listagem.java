@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-
 import modelStore.*;
 
 //This class has static methods is responsible for print 
@@ -25,12 +24,28 @@ class Listagem {
 		if (cart.isEmpty()) {
 			System.out.println("Carrinho vazio.");
 		}else {
+			
+			List<Loja> lojas = new LinkedList<>();
+	    	List<Produto> produtos = new LinkedList<>();
+	    	int unidades = 0;
 			double valorTotal = 0.0;
 			for (int i = 0; i < cart.size(); i++) {
 	    		System.out.println((i+1) + " - " + cart.get(i).toString());
 	    		valorTotal += ((cart.get(i).getQuantidade()) * (cart.get(i).getItem().getPreco()));
+	    		unidades += cart.get(i).getItem().getQuantidade();
+	    		
+	    		// Recebe a loja e compara com um list para contar sem repetir a mesma loja.
+	    		Loja loja = cart.get(i).getItem().getLoja();
+	    		if(!(lojas.contains(loja))) {
+	    			lojas.add(loja);
+	    		}
+	    		// Recebe o produto e compara com um list para contar sem repetir o mesma produto.
+	    		Produto produto = cart.get(i).getItem().getProduto();
+	    		if (!(produtos.contains(produto))) {
+	    			produtos.add(produto);
+				}
 	    	}
-			System.out.println("\nValor total do carrinho: "+ "R$ " +valorTotal);
+			System.out.println("\nLojas: "+ lojas.size() +", Produtos: "+produtos.size()+", Total de Unidades: "+unidades+", Valor total: R$ "+valorTotal);
 		}
     }
     
@@ -109,9 +124,7 @@ class Listagem {
 				return comp;
 			}
 		});
+    	listarItensCarrinho(historico);
     	
-    	for (ItemCarrinho it : historico) {
-    		System.out.println(it);
-    	}
     }
 }

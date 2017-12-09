@@ -109,6 +109,9 @@ class Busca {
 				codigoProdutoFiltrado.add(it);
 			}
 		}
+		if (codigoProdutoFiltrado.isEmpty()) {
+			System.out.println("Sua pesquisa não retornou nada");
+		}
 		
 		return codigoProdutoFiltrado;
 	}

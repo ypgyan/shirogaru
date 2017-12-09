@@ -147,7 +147,7 @@ public class MainApp {
         	// Mostra as opções disponiveis no sistema.
         	System.out.println("Escolha uma opcao da busca desejada dos itens:");
 			System.out.println("1 - Por Loja\n2 - Por Nome do produto\n3 - Por Tipo\n4 - Código do produto"
-					+ "\n5 - Todos os itens do sistema\n6 - Alterar carrinho"
+					+ "\n5 - Todos os itens do sistema\n6 - Seu carrinho"
 					+ "\n7 - Historico de compras\n0 - Encerrar Sistema");
 			
 			opcao = controleEntradaDados(scanUser.nextLine(), 0, 100, msgErro, msgErro);
@@ -176,6 +176,9 @@ public class MainApp {
         			System.out.println("Insira o nome do produto que deseja buscar:");
         			String nomeProd = scanUser.nextLine();
         			itensFiltrados = Busca.nomeProduto(itens, nomeProd);
+        			if (itensFiltrados.isEmpty()) {
+        				System.out.println("Sua pesquisa não retornou nada");
+        			}
         			chamadaCompra = true;
         			break;
         		
@@ -189,7 +192,8 @@ public class MainApp {
         			
         		case 4: //busca pelo codigo do produto
         			System.out.println("Seleciona o codigo do produto desejado:");
-        			int codigo = Integer.parseInt(scanUser.nextLine());
+        			msgErro = "Tente novamente valor inserido não foi achado ou é invalido.";
+        			int codigo = controleEntradaDados(scanUser.nextLine(), 0000, 9999, msgErro, msgErro);
         			itensFiltrados = Busca.codigoProduto(itens, codigo);
         			chamadaCompra = true;
         			break;
@@ -211,7 +215,11 @@ public class MainApp {
         			break;
         			
         		case 7:
-        			Listagem.historicoCompras(compras);
+        			if (compras.isEmpty()) {
+						System.out.println("Não há historico de compras");
+					}else {
+						Listagem.historicoCompras(compras);
+					}
         			chamadaCompra = false;
         			break;
         			
@@ -272,6 +280,7 @@ public class MainApp {
 						
 						System.out.println("Informe a quantidade do produto: ");
 						int qtd = controleEntradaDados(scanUser.nextLine(), 1, itemSelecionado.getQuantidade(), msgErro, msgErro2);
+						Listagem.pularLinha(1);
 						itemSelecionado.debitarEstoque(qtd);
 						ItemCarrinho itemCart = new ItemCarrinho(itemSelecionado, qtd); 
 						
@@ -298,7 +307,7 @@ public class MainApp {
     private static void menuCart(List<Item> itens, List<ItemCarrinho> cart, List<Carrinho> compras) 
     {
     	int opcao1, opcao2, quantidade;
-    	do {	
+    	do {
     		System.out.println("O que gostaria de fazer:");
     		// Lista os itens do carrinho.
     		Listagem.listarItensCarrinho(cart);
@@ -307,7 +316,7 @@ public class MainApp {
     							+ "\n3 - Remover quantidade do produto\n4 - Excluir produto\n5 - Cancelar carrinho\n0 - Voltar ao menu principal.");
     		
     		String msgErro = "Não existe essa opção. Tente novamente.";
-    		opcao1 = controleEntradaDados(scanUser.nextLine(), 0, 4, msgErro, msgErro);
+    		opcao1 = controleEntradaDados(scanUser.nextLine(), 0, 5, msgErro, msgErro);
     		
     		msgErro = "Entrada de dado inválida. Tente novamente:"; 
     		
@@ -408,6 +417,9 @@ public class MainApp {
 		    			itemReporEstoque.inserirEstoque(quantidade);
 		    			cart.remove(opcao2 - 1);
 		    			System.out.println("Produto removido do carrinho.");
+		    			if (cart.isEmpty()) {
+		    				opcao1 = 0;
+		    			}
 	    			}
 	    			break;
 	    			
@@ -430,8 +442,6 @@ public class MainApp {
     	} while(opcao1 != 0);
     }
     
-    
-
     
     //Método que serve para controlar entrada de dados realizada pelo usuário para que digite o correto
     private static int controleEntradaDados(String opcaoEntrada, int min, int max, String msg1, String msg2)  
