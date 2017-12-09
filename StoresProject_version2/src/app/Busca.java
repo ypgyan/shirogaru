@@ -109,20 +109,7 @@ class Busca {
 				codigoProdutoFiltrado.add(it);
 			}
 		}
-		if (codigoProdutoFiltrado.isEmpty()) {
-			System.out.println("Sua pesquisa não retornou nada");
-		}
 		
 		return codigoProdutoFiltrado;
 	}
-	
-	/*public static Item pegaItem(List<Item> itens, Item item ){
-		;
-		for (Item it : itens) {
-			if ((it.equals) {
-				return it;
-			}
-		}
-		return null;
-	}*/
 }

@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.file.FileSystemNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -189,7 +188,8 @@ public class MainApp {
         List<Item> itensFiltrados = null;
         int opcao = 0;
         boolean chamadaCompra = false;
-        String msgErro = "Entrada de dado inválida. Tente novamente:"; 
+        String msgErro = "Entrada de dado inválida. Tente novamente:";
+        String msgFiltroVazio = ""; // Serve para mostrar mensagem caso a busca não contenha nenhum elemento
 		
         //Faz o menu enquanto o opcao continuar ser menor que zero.
         do{
@@ -225,6 +225,7 @@ public class MainApp {
         			int opcao2 = controleEntradaDados(scanUser.nextLine(), 0, listLojas.size(), msgErro, msgErro); // Captura a opcao desejada da loja
         			if (opcao2 == 0) { break; } 
         			itensFiltrados = Busca.porLoja(itens, listLojas.get(opcao2 - 1));
+        			msgFiltroVazio = "Não há produtos na loja selecionada";
         			chamadaCompra = true;
         			mode = 1;
         			break;
@@ -234,17 +235,16 @@ public class MainApp {
         			System.out.println("Insira o nome do produto que deseja buscar:");
         			String nomeProd = scanUser.nextLine();
         			itensFiltrados = Busca.nomeProduto(itens, nomeProd);
-        			if (itensFiltrados.isEmpty()) {
-        				System.out.println("Sua pesquisa não retornou nada");
-        			}
+        			msgFiltroVazio = "Não foi possível encontrar nenhum produto";
         			chamadaCompra = true;
         			break;
         		
         		case 3: //busca por tipo
         			System.out.println("Escolha uma opcao do tipo desejado:");
         			System.out.println("1 - Eletronico\n2 - Item de Casa\n3 - Livro");
-        			opcao = Integer.parseInt(scanUser.nextLine());
+        			opcao = controleEntradaDados(scanUser.nextLine(), 1, 3, msgErro, msgErro);
         			itensFiltrados = Busca.tipoProduto(itens, opcao);
+        			msgFiltroVazio = "Não há produtos do tipo selecionado";
         			chamadaCompra = true;
         			break;
         			
@@ -253,13 +253,15 @@ public class MainApp {
         			msgErro = "Tente novamente valor inserido não foi achado ou é invalido.";
         			int codigo = controleEntradaDados(scanUser.nextLine(), 0000, 9999, msgErro, msgErro);
         			itensFiltrados = Busca.codigoProduto(itens, codigo);
+        			if (itensFiltrados.isEmpty())
+        			msgFiltroVazio = "Não há produtos com o código inserido";
         			chamadaCompra = true;
         			break;
         			
         		case 5: //busca por todos os produtos
         			System.out.println("Todos os produtos cadastrados do sistema:");
         			itensFiltrados = itens;
-        			Collections.sort(itens);
+        			Collections.sort(itens); // Ordena pelo preço
         			chamadaCompra = true;
         			break;
         			
@@ -290,6 +292,10 @@ public class MainApp {
         		Listagem.listarItens(itensFiltrados,mode);
         		tcgBuy(itensFiltrados, cart);
         	}
+        	else if (itensFiltrados.isEmpty()) {
+        		System.out.println(msgFiltroVazio);
+        	}
+        	
         	System.out.println("############################################################");
         	Listagem.pularLinha(2);
         	
