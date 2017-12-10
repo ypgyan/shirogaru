@@ -2,7 +2,7 @@ package modelStore;
 
 import java.io.Serializable;
 
-public class ItemCarrinho implements Serializable {
+public class ItemCarrinho implements Comparable<ItemCarrinho>, Serializable {
 	/**
 	 * 
 	 */
@@ -42,16 +42,28 @@ public class ItemCarrinho implements Serializable {
 		if (obj == null || !(obj instanceof ItemCarrinho))
 			return false;
 		
-		if (this.item.equals( ((ItemCarrinho)obj).getItem() ))
+		if (this.item.equals( ((ItemCarrinho)obj).item ))
 			return true;
 		
 		return false;
 	}
 	
+	@Override
+	public int compareTo(ItemCarrinho itc) 
+	{
+		int comparador = this.quantidade - itc.quantidade;
+		
+		// Caso a quantidade seja a mesma de ambos itens compara pelo código do produto
+		if (comparador == 0)
+			comparador = this.item.getProduto().compareTo(itc.item.getProduto());
+			
+		return comparador;
+	}
+	
 	/* Adiciona mais unidades itens caso para o determinado item carrinho já existente */
 	public boolean adicionaQtdItens(int quantidade)
 	{
-		if (quantidade > 0 && item.getQuantidade() - quantidade >= 0) {
+		if (quantidade > 0 && this.item.getQuantidade() - quantidade >= 0) {
 			this.quantidade += quantidade;
 			return true;
 		}
@@ -69,4 +81,5 @@ public class ItemCarrinho implements Serializable {
 		
 		return false;
 	}
+
 }

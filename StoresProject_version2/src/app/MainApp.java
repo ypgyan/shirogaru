@@ -1,14 +1,15 @@
 package app;
 
 import java.util.Scanner;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,115 +20,120 @@ import java.util.HashMap;
 import modelStore.*; 
 
 public class MainApp {
-	//Atributo static
+	//Atributo static da classe para pegar leitura do usuário
 	private static Scanner scanUser = new Scanner(System.in);
 	
-    public static void main(String[] args) throws ClassNotFoundException, IOException  
+    public static void main(String[] args)   
     {
-    	
-		// Carrega o sistema atraves de um arquivo .dat
-		List sistema = carregarSistema();
-		if (sistema.isEmpty()) {
-			System.out.println("\nFinalizado");
-		}else {
-			// Inicializa as variaveis do sistema.
-			List<Item> itens = (List<Item>) sistema.get(0);
-			Map<String, Loja> lojas = (Map<String, Loja>) sistema.get(1);
-			List<Carrinho> compras = (List<Carrinho>) sistema.get(2); 
-			// Chama o menu da loja
-			menu(lojas, itens, compras);
-		}
-		scanUser.close();
-		
-    }
-    /* Carrega o sistema atraves de um arquivo .dat
-     * retorna uma lista generica com os objetivos que estiverem no arquvio.
-      */
-    public static List carregarSistema() throws IOException, ClassNotFoundException {
-    	
-    	// cria uma lista generica para armazenar os objetos retornado do arquivo
-    	List<Object> aux = new ArrayList<>();
-    	
-    	// Inicializa as listas do sistema.
     	List<Item> itens = new ArrayList<>();
-    	Map<String,Loja> lojas = new HashMap<>();
+    	Map<String, Loja> lojas = new HashMap<>();
+    	Map<Integer, Produto> produtos = new HashMap<>();
     	List<Carrinho> compras = new ArrayList<>();
+    	List<ItemCarrinho> clienteCart = new ArrayList<>();
+    	String nomeArq = "Database/sistema.dat";
     	
-	    try {	
-    	// Busca o arquivo
-		    FileInputStream fis = new FileInputStream("Database/sistema.dat");
-		    ObjectInputStream ois = new ObjectInputStream(fis);
-		    
-		    // Recupera os arquivos de acordo com a ordem que foram inseridos
-		    itens = (List<Item>) ois.readObject();
-		    lojas = (Map<String,Loja>) ois.readObject();
-		    compras = (List<Carrinho>) ois.readObject();
-		    ois.close();
-		    
-		    // Adiciona os objetos na lista para retorno.
-		    aux.add(itens);
-		    aux.add(lojas);
-		    aux.add(compras);
-		    
-		    System.out.println("Carregado do .dat");
-		    
-		    return aux;
-		    
-    	}catch(FileNotFoundException e) {
-    		try {
-    			lojas = importarLojas("Database/lojas.txt");
-        		
-        		// Passando como referencia para pegar os produtos sem ler o arquivo duas vezes.
-        		Map<Integer, Produto> produtos = new HashMap<>();
-        		itens = extrairItens(lojas, produtos ,"Database/produtos.txt");
-        		aux.add(itens);
-    		    aux.add(lojas);
-    		    aux.add(compras);
-    		    
-    		    System.out.println("Carregado dos .txt");
-    		    return aux;
-    		}catch (FileNotFoundException exception) {
-				System.out.println("Nenhum arquivo contendo dados do sistema foi encontrado.");
-				return aux;
-			}
-    		
+    	if (carregarSistema(itens, lojas, produtos, compras, clienteCart, nomeArq)) {
+    		System.out.println("Carregado com sucesso");
     	}
+    	else {
+    		System.out.println("Error system");
+    	}
+    	
     }
     
-    /* Import stores read from file */
-    public static Map<String, Loja> importarLojas(String nomeArq) throws FileNotFoundException  
+    /* Abrir o sistema carregando as informações pelo arquivo.dat(arquivo binário) */
+    @SuppressWarnings("unchecked") // Suprimir os avisos do casting no read object
+	public static boolean carregarSistema (List<Item> itens, Map<String, Loja> lojas, Map<Integer, Produto> produtos, List<Carrinho> compras, List<ItemCarrinho> clienteCart, String nomeArq) {
+    	
+    	boolean carregadoComSucesso = false;
+    	
+	    try {	
+		    InputStream fis = new FileInputStream(nomeArq);
+		    ObjectInputStream ois = new ObjectInputStream(fis);
+		    
+		    // Recupera os arquivos de acordo com a ordem que foram inseridos no arquivo.dat
+	    	itens = (List<Item>) ois.readObject();
+		    lojas = (Map<String,Loja>) ois.readObject();
+		    produtos = (Map<Integer, Produto>) ois.readObject();
+		    compras = (List<Carrinho>) ois.readObject();
+		    clienteCart = (List<ItemCarrinho>) ois.readObject();
+		    
+		    ois.close(); // Fecha o ObjectInputStream
+		    carregadoComSucesso = true;
+	    }
+	    catch (FileNotFoundException e) {
+	    	carregadoComSucesso = importarLojas(lojas, "Database/lojas.txt");
+	    	carregadoComSucesso = extrairItens(itens, lojas, produtos, "Database/produtos.txt");
+	    }
+	    catch (ClassCastException | ClassNotFoundException | IOException e) {
+	    	System.out.println("Houve problema na leitura do arquivo");
+	    }
+		    
+    	return carregadoComSucesso;
+    }
+    
+    /* Importa as lojas do arquivo.txt */
+    public static boolean importarLojas(Map<String, Loja> lojas, String nomeArq)  
     {
-    	//String pathArq = ClassLoader.getSystemResource(nomeArq).getPath();
-    	Scanner scanLojas = new Scanner(new File(nomeArq));
+    	boolean importadoComSucesso = false;
     	
-    	//Instance a map structure to save the stores, where the key is String type
-    	Map<String, Loja> lojas = new HashMap<>();
-        
-        while (scanLojas.hasNextLine()) 
-        {
-        	String[] linha = scanLojas.nextLine().split(";");
-        	
-            String id = linha[0];
-            String nome = linha[1];
-            int avaliacao = Integer.parseInt(linha[2]);
+    	try {
+    		Scanner scanLojas = new Scanner(new File(nomeArq));
             
-            //Store instance
-            lojas.put(id, new Loja(id, nome, avaliacao)); 
-        }
+    		// Para segurança faz uma checagem para identificar se o mapa de lojas já foi instanciado
+    		if (lojas == null)
+    			lojas = new HashMap<>();
+    		
+            while (scanLojas.hasNextLine()) 
+            {
+            	String[] linha = scanLojas.nextLine().split(";");
+            	
+                String id = linha[0];
+                String nome = linha[1];
+                int avaliacao = Integer.parseInt(linha[2]);
+                
+                //Store instance
+                lojas.put(id, new Loja(id, nome, avaliacao)); 
+            }
+        	
+            scanLojas.close();
+            importadoComSucesso = true; // Foi importando com sucesso
+    	} 
+    	catch (FileNotFoundException e) {
+    		System.out.println("Erro na abertura do arquivo. Arquivo não encontrado");
+    	}
     	
-        scanLojas.close();
-        
-        return lojas;
+        return importadoComSucesso;
     }
 
-
-    /* Import the products from the file and put all of them on respective items */
-    public static List<Item> extrairItens(Map<String, Loja> lojas, Map<Integer, Produto> produtos, String nomeArq) throws FileNotFoundException
+    /* Importa os produtos do arquivo e coloca em seus respectivos itens */
+    public static boolean extrairItens(List<Item> itens, Map<String, Loja> lojas, Map<Integer, Produto> produtos, String nomeArq)
     {
-    	//String pathArq = ClassLoader.getSystemResource(nomeArq).getPath();
-    	Scanner scanProdutos = new Scanner(new File(nomeArq));
-    	List<Item> itens = new ArrayList<>();
-    	int countLine = 0;
+    	boolean extraidoComSucesso = false;
+    	Scanner scanProdutos = null;
+    	
+    	try {
+    		scanProdutos = new Scanner(new File(nomeArq));
+    		extraidoComSucesso = true;
+    	}
+    	catch (FileNotFoundException e) {
+    		System.out.println("Erro na abertura do arquivo. Arquivo não encontrado");
+    	}
+    	
+    	// Erro na abertura, logo volta false porque não abriu
+    	if (extraidoComSucesso == false) 
+    		return extraidoComSucesso;
+    	
+    	// Verifica antes por segurança se o list de itens já está instanciado
+    	if (itens == null)
+    		itens = new ArrayList<>();
+    	
+    	// Verifica também se os produtos passados já está instanciado
+    	if (produtos == null)
+    		produtos = new HashMap<>();
+    	
+    	// Serve para quando acha um produto que não pode ser instanciado como produto, pois não existe uma subclasse para ele
+    	int countLine = 0; 
     	
     	//Loops according the numbers of products registrations
     	while (scanProdutos.hasNextLine()) {
@@ -169,33 +175,40 @@ public class MainApp {
     			itens.add(new Item(lojas.get(Idloja), pNew, preco, quantidade));
     		}
     		//Else the product already exists then
-    		else { 
-    			itens.add(new Item(lojas.get(Idloja), produtos.get(cod), preco, quantidade));
+    		else {
+    			Item item = new Item(lojas.get(Idloja), produtos.get(cod), preco, quantidade);
+    			// Checa se o item já existe dentro da lista para não haver erros de duplicação de itens iguais
+    			if (!itens.contains(item))
+    				itens.add(item); // Item novo
+    			else {
+    				System.out.println("Item já existente na lista de registros. Para evitar problemas de redundância "
+    									+ "foi pegado a primeira ocorrência do item no arquivo lido");
+    			}
     		}
     	}		
-    	
     	scanProdutos.close();
-    	return itens;
+    	
+    	return extraidoComSucesso;
     }
     
     /* Menu que interage com o usuário final do sistema */
-    public static void menu (Map<String, Loja> lojas, List<Item> itens, List<Carrinho> compras) throws IOException 
+    public static void menu (Map<String, Loja> lojas, Map<Integer, Produto> produtos, List<Item> itens, List<Carrinho> compras, List<ItemCarrinho> cart) 
     {
-    	//Menu para o usuario que chamar a classe aplicacao
-        
     	// Inicialiação das variaveis
-        List<ItemCarrinho> cart = new ArrayList<>();
         List<Item> itensFiltrados = null;
-        int opcao = 0;
-        /* Pega a quantidade de compras antes de serem feitas modificações */
-        Integer quantidadeComprasAntes = new Integer(compras.size()); 
+        int opcao = 0, opcao2 = 0;
+        // Pega a quantidade de compras antes de serem feitas modificações, no caso possíveis novas compras 
+        int quantidadeComprasAntes = compras.size();
+        /* Na mesma ideia da variável acima pega o carrinho antigo e depois compara com o novo 
+         * para verificar se tem a necessidade de escrever o arquivo binário */
+        List<ItemCarrinho> cartOld = new ArrayList<>(cart);
         boolean chamadaCompra = false;
         String msgErro = "Entrada de dado inválida. Tente novamente:";
         String msgFiltroVazio = ""; // Serve para mostrar mensagem caso a busca não contenha nenhum elemento
 		
-        System.out.println("Bem-vindo a Shirugueri store pesadão. XD\n\n");
+        System.out.println("Bem-vindo a Shirugeru store.\n\n");
         
-        //Faz o menu enquanto o opcao continuar ser menor que zero.
+        // Faz o menu enquanto o opcao continuar ser menor que zero.
         do{
         	// Variavel que define se lista o valor total ou lojas.
             int mode = 0;
@@ -213,12 +226,33 @@ public class MainApp {
 					+ "\n7 - Historico de compras\n0 - Encerrar Sistema");
 			
 			opcao = controleEntradaDados(scanUser.nextLine(), 0, 100, msgErro, msgErro);
-			
-        	Listagem.pularLinha(2);
+        	
+			Listagem.pularLinha(2);
         	switch (opcao) {
-        		case 0:
-        			salvarSistema(itens, lojas, compras, quantidadeComprasAntes);
+        		case 0: //Finaliza a execução do sistema
+        			// Antes verificar se contém algum produto pendente no carrinho
+        			if (cart.size() > 0) {
+        				System.out.println("Você possui produtos em seu carrinho. Deseja realmente sair do sistema?\n1 - Sim\n2 - Não");
+        				opcao = controleEntradaDados(scanUser.nextLine(), 1, 2, msgErro, msgErro);
+        				// Cliente NÃO deseja fechar o sistema sem comprar os itens do carrinho
+        				if (opcao == 2) {
+        					System.out.println("\nRedirecionado para o seu carrinho.\n");
+        					menuCart(itens, cart, compras);// Redireciona para opção 6 do menu principal que é o carrinho
+        					break;
+        				}
+        			}
+        			// Caso ele deseje fechar o sistema com itens ou sem itens no carrinho então é salvo os registros juntamente com carrinho do cliente
+        			Listagem.pularLinha(3);
         			System.out.println("Agradecemos a preferência!!\n VOLTE SEMPRE");
+        			
+        			/* Verifica antes se houve alteração nas compras atuais em relação a anterior ou se houve alterações no carrinho novo 
+        			 * em relação ao anterior. Caso tenha alterações então faz todo sentido salvar no sistema */
+        			if (quantidadeComprasAntes != compras.size() || checaCarrinhoAlterado(cartOld, cart)) {
+        				String nomeArq = "Database/sistema.dat";
+        				salvarSistema(itens, lojas, produtos, compras, cart, nomeArq);
+        			}
+        			
+        			opcao = 0;
         			chamadaCompra = false;
         			break;
         			
@@ -227,7 +261,7 @@ public class MainApp {
         			System.out.println("0 - Voltar");
         			Listagem.listarLojas(listLojas);
         			System.out.println("\nSelecione a loja desejada: ");
-        			int opcao2 = controleEntradaDados(scanUser.nextLine(), 0, listLojas.size(), msgErro, msgErro); // Captura a opcao desejada da loja
+        			opcao2 = controleEntradaDados(scanUser.nextLine(), 0, listLojas.size(), msgErro, msgErro); // Captura a opcao desejada da loja
         			if (opcao2 == 0) { break; } 
         			itensFiltrados = Busca.porLoja(itens, listLojas.get(opcao2 - 1));
         			msgFiltroVazio = "Não há produtos na loja selecionada";
@@ -236,7 +270,6 @@ public class MainApp {
         			break;
         		
         		case 2: //busca por nome
-        			// Lista todos os produtos do sistema
         			System.out.println("Insira o nome do produto que deseja buscar:");
         			String nomeProd = scanUser.nextLine();
         			itensFiltrados = Busca.nomeProduto(itens, nomeProd);
@@ -246,20 +279,23 @@ public class MainApp {
         		
         		case 3: //busca por tipo
         			System.out.println("Escolha uma opcao do tipo desejado:");
-        			System.out.println("1 - Eletronico\n2 - Item de Casa\n3 - Livro");
-        			opcao = controleEntradaDados(scanUser.nextLine(), 1, 3, msgErro, msgErro);
-        			itensFiltrados = Busca.tipoProduto(itens, opcao);
+        			System.out.println("0 - Voltar\n1 - Eletronico\n2 - Item de Casa\n3 - Livro");
+        			opcao2 = controleEntradaDados(scanUser.nextLine(), 0, 3, msgErro, msgErro);
+        			if (opcao2 == 0) { break; } 
+        			itensFiltrados = Busca.tipoProduto(itens, opcao2);
         			msgFiltroVazio = "Não há produtos do tipo selecionado";
         			chamadaCompra = true;
         			break;
         			
         		case 4: //busca pelo codigo do produto
-        			System.out.println("Seleciona o codigo do produto desejado:");
-        			msgErro = "Tente novamente valor inserido não foi achado ou é invalido.";
-        			int codigo = controleEntradaDados(scanUser.nextLine(), 0000, 9999, msgErro, msgErro);
-        			itensFiltrados = Busca.codigoProduto(itens, codigo);
-        			if (itensFiltrados.isEmpty())
-        			msgFiltroVazio = "Não há produtos com o código inserido";
+        			List<Produto> listProdutos = Busca.todosProdutos(produtos);
+        			System.out.println("0 - Voltar");
+        			Listagem.listarProdutos(listProdutos);
+        			System.out.println("\nSelecione a opção do código do produto desejada: ");
+        			opcao2 = controleEntradaDados(scanUser.nextLine(), 0, listProdutos.size(), msgErro, msgErro); // Captura a opcao desejada da loja
+        			if (opcao2 == 0) { break; } 
+        			itensFiltrados = Busca.codigoProduto(itens, listProdutos.get(opcao2 - 1).getCodigo());
+        			msgFiltroVazio = "Não foi possível encontrar nenhum produto contendo esse nome";
         			chamadaCompra = true;
         			break;
         			
@@ -270,7 +306,7 @@ public class MainApp {
         			chamadaCompra = true;
         			break;
         			
-        		case 6: // O usario podera encerrar ou remover algo do carrinho.
+        		case 6: // Usuário acessa seu carrinho escolhendo as opções de finalizar, cancelar e alterando a compra
         			if (cart.isEmpty()) {
 						System.out.println("Carrinho Vazio");
 					}else {
@@ -279,10 +315,11 @@ public class MainApp {
         			chamadaCompra = false;
         			break;
         			
-        		case 7:
+        		case 7: // Acessa o histórico de compras do sistema
         			if (compras.isEmpty()) {
 						System.out.println("Não há historico de compras");
 					}else {
+						System.out.println("Histórico de compras");
 						Listagem.historicoCompras(compras);
 					}
         			chamadaCompra = false;
@@ -290,16 +327,20 @@ public class MainApp {
         			
         		default:
         			chamadaCompra = false;
-        			System.out.println("Nao existe essa busca");
+        			System.out.println("Não existe essa busca");
         	}
         	
-        	if ((chamadaCompra) && !itensFiltrados.isEmpty()) {
-        		Listagem.listarItens(itensFiltrados,mode);
-        		tcgBuy(itensFiltrados, cart);
+        	// Caso verdadeiro faz a chamada da compra perguntando ao usuário final se deseja comprar algum item da busca selecionada
+        	if (chamadaCompra) {
+        		if (itensFiltrados != null && !itensFiltrados.isEmpty()) {
+        			Listagem.listarItens(itensFiltrados, mode);
+            		tcgBuy(itensFiltrados, cart);
+        		}
+        		// Imprime a mensagem quando a lista de itensFiltrados da busca retorna nenhum elemento, logo não sendo possível fazer a compra
+        		else if (itensFiltrados != null)
+        			System.out.println(msgFiltroVazio);
         	}
-        	else if (itensFiltrados != null && itensFiltrados.isEmpty()) {
-        		System.out.println(msgFiltroVazio);
-        	}
+        	itensFiltrados = null;
         	
         	System.out.println("############################################################");
         	Listagem.pularLinha(2);
@@ -307,7 +348,8 @@ public class MainApp {
         } while (opcao != 0);
     }
     
-    //Método que serve para o usuário do sistema comprar itens cadastrados no sistema
+    /* Serve para quando o cliente deseja comprar algum item da loja */
+    /* Método que serve para o usuário do sistema comprar itens cadastrados no sistema */
     private static void tcgBuy(List<Item> itens, List<ItemCarrinho> cart) 
     {
     	Listagem.pularLinha(2);
@@ -340,38 +382,52 @@ public class MainApp {
 				// atraves do que foi selecionado pelo usuario é colocado o item em seu carrinho
 				if (opcao != 0) {
 					Item itemSelecionado = itens.get(opcao-1);
+					int qtdItensDisponiveis = itemSelecionado.getQuantidade();
+					boolean itemNoCarrinho = false;
 					
-				// Verifica se não tem mais o item no estoque
-					if (itemSelecionado.getQuantidade() > 0) {
+					// Checa se o item já existe no carrinho de compras
+					for (ItemCarrinho itc: cart) {
+						if (itc.getItem().equals(itemSelecionado)) {
+							qtdItensDisponiveis = itemSelecionado.getQuantidade() - itc.getQuantidade();
+							itemNoCarrinho = true;
+							break;
+						}
+					}
+					
+					// Verifica se não tem mais o item no estoque
+					if (qtdItensDisponiveis > 0) {
 						
-						String msgErro2 = "Quantidade inserida inválida ou indisponível no estoque. Insira novamente:";
+						String msgErro2 = "Quantidade inserida inválida ou indisponível. Insira novamente:";
 						
 						System.out.println("Informe a quantidade do produto: ");
-						int qtd = controleEntradaDados(scanUser.nextLine(), 1, itemSelecionado.getQuantidade(), msgErro, msgErro2);
+						
+						int qtd = controleEntradaDados(scanUser.nextLine(), 1, qtdItensDisponiveis, msgErro, msgErro2);
 						Listagem.pularLinha(1);
-						itemSelecionado.debitarEstoque(qtd);
+						
 						ItemCarrinho itemCart = new ItemCarrinho(itemSelecionado, qtd); 
 						
 						// Verifica primeiro se já existe o item no carrinho e caso tenha só precisa adicionar a quantidade escolhida
-						if (cart.contains(itemCart)) {
+						if (itemNoCarrinho) {
 							int pos = cart.indexOf(itemCart);
 							cart.get(pos).adicionaQtdItens(qtd);
 						}
 						else { cart.add(itemCart); } // Adiciona o item que não existe no item carrinho ainda
 						
 						System.out.println("Produto adicionado ao Carrinho");
+						Listagem.listarItensCarrinho(cart);
 						
 					}
 					else //Caso o estoque do item esteja zerado
-						System.out.println("Não há disponibilidade do item selecionado no estoque");
+						System.out.println("Quantia seleciona por você já é a mais do que está disponível no estoque");
 					
 					Listagem.pularLinha(1);
 				}
 			}
 		}
     }
-
-    // Menu para interagir com o carrinho.
+    
+    /* Menu do carrinho que permite o usuário finalizar a compra, alterar itens do carrinho ou cancelar o carrinho
+     * ou seja, Menu para interagir com o carrinho */
     private static void menuCart(List<Item> itens, List<ItemCarrinho> cart, List<Carrinho> compras) 
     {
     	int opcao1, opcao2, quantidade;
@@ -399,16 +455,22 @@ public class MainApp {
 	    			System.out.println("Deseja realmente finalizar as compras?\n1 - Sim\n2 - Não");
 	    			opcao2 = controleEntradaDados(scanUser.nextLine(), 1, 2, msgErro, msgErro);
 	    			
-	    			//Cliente finaliza a compra e é criado 
+	    			// Cliente finaliza a compra e é registrado no lista de compras para histórico
 	    			if (opcao2 == 1) {
-	    				List<ItemCarrinho> itensCarrinho = new ArrayList<>();
-	    				itensCarrinho.addAll(cart);
-	    				Carrinho compraFechada = new Carrinho(itensCarrinho, new Date());
+	    				List<ItemCarrinho> carrinhoCliente = new ArrayList<>();
+	    				carrinhoCliente.addAll(cart);
+	    				Carrinho compraFechada = new Carrinho(carrinhoCliente, new Date());
 	    				compras.add(compraFechada); //Adiciona a compra na lista de compras para registro
 	    				
-	    				cart.clear(); // Limpa o cart que é o "carrinho" que o cliente e estava usando
+	    				/* Antes de dar um flush/limpar o carrinho que o cliente estava usando é necessário debitar a compra realizada 
+	    				 * do estoque dos produtos do sistema, pois a compra foi realmente realizada */
+	    				for (ItemCarrinho itc : cart) {
+	    					int qtdDebitarEstoque = itc.getQuantidade();
+	    					itc.getItem().debitarEstoque(qtdDebitarEstoque); // Debitado do estoque
+	    				}
+	    				cart.clear(); // Limpa o cart que é o "carrinho" que o cliente estava usando
 	    				
-	    				System.out.println("Arigatou Gozaimasu pela compra");
+	    				System.out.println("Obrigado pela compra\nRedirecionando ao menu principal");
 	    				opcao1 = 0; //Volta para menu principal
 	    			}
 	    			break;
@@ -421,24 +483,25 @@ public class MainApp {
 		    			opcao2 = controleEntradaDados(scanUser.nextLine(), 0, cart.size(), msgErro, msgErro);
 		    			Listagem.pularLinha(1);
 		    			
-		    			if (opcao2 == 0) { break; } //Sai do loop porque o usuário decidiu não cancelar mais
+		    			if (opcao2 == 0) { break; } // Sai do loop porque o usuário decidiu não cancelar mais
 		    			
-		    			ItemCarrinho itemCartAdicionar = cart.get(opcao2 - 1); //Pega o itemCarrinho da opção escolhida
-		    			Item itemRetirarEstoque = itemCartAdicionar.getItem(); //Pega o item para debitar as unidades no estoque
+		    			ItemCarrinho itemCartAdicionar = cart.get(opcao2 - 1); // Pega o itemCarrinho da opção escolhida
+		    			Item itemSelecionado = itemCartAdicionar.getItem(); // Pega o item que foi escolhido para adicionar as unidades no carrinho
+		    			int qtdDisponivel = itemSelecionado.getQuantidade() - itemCartAdicionar.getQuantidade();
 		    			
-		    			//Tem estoque então pode adicionar mais itens no carrinho
-		    			if (itemRetirarEstoque.getQuantidade() > 0) {
-		    				System.out.println("Informações do item no estoque:\n" + itemRetirarEstoque + "\n");
+		    			// Tem disponibilidade então pode adicionar mais itens no carrinho
+		    			if (qtdDisponivel > 0) {
+		    				System.out.println("Informações do item no estoque:\n" + itemSelecionado + "\n");
 		    				System.out.println("Escolha a quantidade que deseja adicionar:");
-			    			String msgErro2 = "Não se pode adicionar com a quantidade inserida";
-			    			quantidade = controleEntradaDados(scanUser.nextLine(), 1, itemRetirarEstoque.getQuantidade(), msgErro, msgErro2);
+			    			String msgErro2 = "Não se pode adicionar com a quantidade inserida, pois é mais do que há em estoque";
+			    			quantidade = controleEntradaDados(scanUser.nextLine(), 1, qtdDisponivel, msgErro, msgErro2);
 			    			
-			    			// Basta adicionar no carrinho e remover do estoque de item
+			    			// Basta adicionar no carrinho a quantia válida inserida
 			    			itemCartAdicionar.adicionaQtdItens(quantidade);
-			    			itemRetirarEstoque.debitarEstoque(quantidade);
 		    			}
 		    			else 
-		    				System.out.println("Não tem como adicionar mais unidades desse produto, pois está indisponível no estoque");
+		    				System.out.println("Não pode adicionar mais unidades desse produto, pois você selecionou todos"
+		    									+ " itens do estoque\n");
 	    			}
 	    			break;
 	    		
@@ -451,16 +514,14 @@ public class MainApp {
 		    			Listagem.pularLinha(1);
 		    			
 		    			if (opcao2 == 0) { break; } //Sai do loop porque o usuário decidiu não cancelar mais
-		    			ItemCarrinho itemCartRemover = cart.get(opcao2 - 1); //Pega o itemCarrinho da opção escolhida
-		    			Item itemReporEstoque = itemCartRemover.getItem(); //Pega o item para colocar as unidades no estoque novamente
+		    			ItemCarrinho itemCartRemover = cart.get(opcao2 - 1); // Pega o itemCarrinho da opção escolhida
 		    			
 		    			System.out.println("Escolha a quantidade que deseja remover:");
 		    			String msgErro2 = "Não se pode remover com a quantidade inserida";
 		    			quantidade = controleEntradaDados(scanUser.nextLine(), 1, itemCartRemover.getQuantidade(), msgErro, msgErro2);
 		    			
-		    			// Remover do carrinho e adicionar novamente no estoque do item
+		    			// Remover do carrinho a quantidade inserida
 		    			itemCartRemover.removeQtdItens(quantidade);
-		    			itemReporEstoque.inserirEstoque(quantidade);
 		    			
 		    			// Deve checar se a unidade do item removido do carrinho está zero. Logo ele deve sair do carrinho
 		    			if (itemCartRemover.getQuantidade() == 0) {
@@ -476,7 +537,7 @@ public class MainApp {
 	    			}
 	    			break;
 	    			
-	    		case 4: // Exclui produto do carrinho.
+	    		case 4: // Exclui produto selecionado do carrinho.
 	    			while (true) {
 	    				System.out.println("Escolha o produto que deseja remover totalmente:");
 		    			System.out.println("0 - Voltar");
@@ -486,13 +547,11 @@ public class MainApp {
 		    			
 		    			if (opcao2 == 0) { break; } //Sai do loop porque o usuário decidiu não cancelar mais
 		    			ItemCarrinho itemCartRemover = cart.get(opcao2 - 1); //Pega o itemCarrinho da opção escolhida
-		    			Item itemReporEstoque = itemCartRemover.getItem(); //Pega o item para colocar as unidades no estoque novamente
-		    			// Pega a quantidade que a no carrinho.
+		    			// Pega a quantidade que há no carrinho.
 		    			quantidade = itemCartRemover.getQuantidade();
 		    			
-		    			// Basta remover do carrinho e adicionar novamente no estoque do item
+		    			// Basta remover do carrinho 
 		    			itemCartRemover.removeQtdItens(quantidade);
-		    			itemReporEstoque.inserirEstoque(quantidade);
 		    			cart.remove(opcao2 - 1);
 		    			System.out.println("Produto removido do carrinho");
 		    			if (cart.isEmpty()) {
@@ -509,10 +568,6 @@ public class MainApp {
 	    			
 	    			// Caso o usuário final deseje realmente cancelar é dado um clear no carrinho 
 	    			if (opcao2 == 1) {
-	    				// Remove os produtos do carrinho e devolve ao estoque.
-	    				for(ItemCarrinho itc : cart) {
-	    					itc.getItem().inserirEstoque(itc.getQuantidade());
-	    				}
 	    				cart.clear();
 	    				System.out.println("Carrinho cancelado com sucesso. Redirecionando para o menu principal");
 	    				opcao1 = 0; // Volta ao menu principal
@@ -522,7 +577,8 @@ public class MainApp {
     	} while(opcao1 != 0);
     }
     
-    //Método que serve para controlar entrada de dados realizada pelo usuário para que digite o correto
+    /* Serve para controlar a entrada de dados pelo teclado do usuário, para que não dê erros durante a execução do sistema */
+    /* Método que serve para controlar entrada de dados realizada pelo usuário para que digite o correto */
     private static int controleEntradaDados(String opcaoEntrada, int min, int max, String msg1, String msg2)  
     {
     	boolean condicao = true;
@@ -558,25 +614,54 @@ public class MainApp {
     	return opcao;
     }
     
-    /* Serializa o essencial para o sistema, e joga dentro de um arquivo .dat */
-    public static boolean salvarSistema(List<Item> itens, Map<String, Loja> lojas, List<Carrinho> compras, Integer qtdComprasPassada) throws IOException {
+    /* Método que checa o carrinho antes de usar o sistema e depois de usar o sistema. Ideal para que no momento de 
+     * chamar método salvarSistema não escreva o arquivo binário sem necessidade, caso o cliente somente tenha usado o sistema para consultas */
+    private static boolean checaCarrinhoAlterado(List<ItemCarrinho> oldCart, List<ItemCarrinho> newCart) {
+    	 
+    	if (oldCart.isEmpty() && newCart.isEmpty()) // Primeiro checa se o carrinho antes e depois está vazio
+    		return false;
+    	else if (oldCart.size() != newCart.size()) // Caso o tamanho de itens dos dois carrinhos sejam difentes houve mudança
+    		return true;
+    	else {
+    		Collections.sort(oldCart); Collections.sort(newCart); // Ordena ambos carrinhos
+    		// Compara pela posição de cada um, onde caso a quantidade seja a mesma é porque são carrinhos iguais
+    		for (int i = 0; i < oldCart.size(); i++) {
+    			if (oldCart.get(i).getQuantidade() != newCart.get(i).getQuantidade())
+    				return false;
+    		}
+    	}
     	
-    	Integer qtdComprasRecente = new Integer(compras.size()); // Pega a quantidade de compras recentes
+    	return true; // Carrinho após uso do sistema foi realmente alterado
+    }
+    
+    /* Serializa o essencial para o sistema, e joga dentro de um arquivo .dat, salvando o sistema */
+    public static boolean salvarSistema(List<Item> itens, Map<String, Loja> lojas, Map<Integer, Produto> produtos, List<Carrinho> compras, List<ItemCarrinho> clienteCart, String nomeArq)
+    {
+    	boolean fechadoComSucesso = false;
     	
-    	/* Caso a as quantidades dos itens sejam iguais é porque não foi realizada nenhuma compra, 
-    	logo não é necessário escrever no arquivo binário de saída exatamente o mesmo estado anterior */
-    	if (qtdComprasPassada.equals(qtdComprasRecente))
-    		return false; // Não salvo, pois não teve nenhuma alteração
-    	
-    	FileOutputStream fos = new FileOutputStream("Database/sistema.dat");
-	    ObjectOutputStream oos = new ObjectOutputStream(fos);
+    	try {
+    		OutputStream fos = new FileOutputStream(nomeArq);
+		    ObjectOutputStream oos = new ObjectOutputStream(fos);
+		    
+		    oos.writeObject(itens);
+		    oos.writeObject(lojas);
+		    oos.writeObject(produtos);
+		    oos.writeObject(compras);
+		    oos.writeObject(clienteCart);
+		    oos.close();
+		    
+		    fechadoComSucesso = true; // Salvo o arquivo com sucesso
+    	}
+	    catch (FileNotFoundException e) {
+	    	System.out.println("Não é possível gerar o arquivo de saída. Pode ser o diretório que está sendo submetido");
+	    	
+	    }
+    	catch (IOException e) {
+    		System.out.println("Houve problema na escrita do arquivo");
+    		
+    	}
 	    
-	    oos.writeObject(itens);
-	    oos.writeObject(lojas);
-	    oos.writeObject(compras);
-	    oos.close();
-	    
-	    return true; // Salvo com sucesso
+	    return fechadoComSucesso;
     }
 }
 	

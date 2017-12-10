@@ -50,13 +50,25 @@ public class Item implements Comparable<Item>, Serializable {
 	@Override
 	public String toString() 
 	{
-		return this.loja.getId() + " " + String.format("%-10s", this.produto) + " " + String.format("%d %-5s R$ %.2f", this.quantidade, "unid",this.preco);
+		return this.loja.getId() + " " + String.format("%-10s", this.produto) + " " + String.format("%d %-5s R$ %.2f", this.quantidade, "unid", this.preco);
 	}
 
 	@Override
 	public int compareTo(Item it)
-	{		
-		return (int) (this.preco - it.preco);
+	{
+		int comparador = 0;
+		double valor = this.preco - it.preco;
+		
+		/* Pergunta se o valor é diferente que zero, pois quando o valor é muito pequeno o casting de double para int pode dar zero
+		o que poderia trazer uma ordenação errada */
+		if (valor != 0) {
+			if (valor < 0)
+				comparador = -1; 
+			else
+				comparador = 1; // valor > 0
+		}
+		
+		return comparador;
 	}
 	
 	@Override
@@ -65,8 +77,8 @@ public class Item implements Comparable<Item>, Serializable {
 		if ((obj == null) || !(obj instanceof Item))
     		return false; 
 		
-		Loja loja = ((Item)obj).getLoja();
-		Produto produto = ((Item)obj).getProduto();
+		Loja loja = ((Item)obj).loja;
+		Produto produto = ((Item)obj).produto;
 		
 		if (this.produto.equals(produto) && this.loja.equals(loja))
 			return true;

@@ -97,9 +97,10 @@ class Listagem {
     
     public static void listarProdutos(List<Produto> produtos) 
     {
-    	for (Produto p : produtos) {
-    		System.out.println(p);
+    	for (int i = 0; i < produtos.size(); i++) {
+    		System.out.println((i+1) + " - " + produtos.get(i));
     	}
+    	System.out.println("Total de produtos: "+ (produtos.size()));
     }
     
     public static void historicoCompras(List<Carrinho> compras) {
