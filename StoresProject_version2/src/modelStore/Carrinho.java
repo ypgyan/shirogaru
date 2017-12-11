@@ -45,8 +45,12 @@ public class Carrinho implements Serializable {
 	
 	//Calcula o preço total dos itens no carrinho da compra realizada
 	public double precoTotal() {
-		// TODO
 		double preco = 0;
+		
+		// Calculando o preço total da compra
+		for (ItemCarrinho itc : this.itensCarrinho) {
+			preco += (itc.getQuantidade() * itc.getItem().getPreco());
+		}
 		
 		return preco;
 	}

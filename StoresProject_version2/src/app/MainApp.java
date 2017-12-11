@@ -33,7 +33,6 @@ public class MainApp {
     	String nomeArq = "Database/sistema.dat";
     	
     	if (carregarSistema(itens, lojas, produtos, compras, clienteCart, nomeArq)) {
-    		System.out.println("Carregado com sucesso");
     		menu(lojas,produtos,itens,compras,clienteCart);
     	}
     	else {
@@ -63,8 +62,8 @@ public class MainApp {
 		    carregadoComSucesso = true;
 	    }
 	    catch (FileNotFoundException e) {
-	    	carregadoComSucesso = importarLojas(lojas, "Database/lojas.txt");
-	    	carregadoComSucesso = extrairItens(itens, lojas, produtos, "Database/produtos2.txt");
+	    	carregadoComSucesso = importarLojas(lojas, "Database/lojas.txt", "UTF-8");
+	    	carregadoComSucesso = extrairItens(itens, lojas, produtos, "Database/produtos2.txt", "UTF-8");
 	    }
 	    catch (ClassCastException | ClassNotFoundException | IOException e) {
 	    	System.out.println("Houve problema na leitura do arquivo");
@@ -74,12 +73,12 @@ public class MainApp {
     }
     
     /* Importa as lojas do arquivo.txt */
-    public static boolean importarLojas(Map<String, Loja> lojas, String nomeArq)  
+    public static boolean importarLojas(Map<String, Loja> lojas, String nomeArq, String encoding)  
     {
     	boolean importadoComSucesso = false;
     	
     	try {
-    		Scanner scanLojas = new Scanner(new File(nomeArq));
+    		Scanner scanLojas = new Scanner(new File(nomeArq), encoding);
             
     		// Para segurança faz uma checagem para identificar se o mapa de lojas já foi instanciado
     		if (lojas == null)
@@ -103,22 +102,28 @@ public class MainApp {
     	catch (FileNotFoundException e) {
     		System.out.println("Erro na abertura do arquivo. Arquivo não encontrado");
     	}
+    	catch (IllegalArgumentException e) {
+    		System.out.println("Erro de codificação do arquivo. Não foi aceito o encondig passado");
+    	}
     	
         return importadoComSucesso;
     }
 
     /* Importa os produtos do arquivo e coloca em seus respectivos itens */
-    public static boolean extrairItens(List<Item> itens, Map<String, Loja> lojas, Map<Integer, Produto> produtos, String nomeArq)
+    public static boolean extrairItens(List<Item> itens, Map<String, Loja> lojas, Map<Integer, Produto> produtos, String nomeArq, String encoding)
     {
     	boolean extraidoComSucesso = false;
     	Scanner scanProdutos = null;
     	
     	try {
-    		scanProdutos = new Scanner(new File(nomeArq));
+    		scanProdutos = new Scanner(new File(nomeArq), "UTF-8");
     		extraidoComSucesso = true;
     	}
     	catch (FileNotFoundException e) {
     		System.out.println("Erro na abertura do arquivo. Arquivo não encontrado");
+    	}
+    	catch (IllegalArgumentException e) {
+    		System.out.println("Erro de codificação do arquivo. Não foi aceito o encondig passado");
     	}
     	
     	// Erro na abertura, logo volta false porque não abriu
@@ -144,7 +149,7 @@ public class MainApp {
     		String nome = linha[3];
     		String tipoProduto = linha[2];
     		String Idloja = linha[0];
-    		double preco = Double.parseDouble(linha[5].replace(',', '.'));
+    		double preco = conversaoPreco(linha[5]);
     		int quantidade = Integer.parseInt(linha[4]);
     		
     		//Checking the existence of the product in the Map Collection
@@ -186,10 +191,41 @@ public class MainApp {
     									+ "foi pegado a primeira ocorrência do item no arquivo lido");
     			}
     		}
-    	}		
+    	}
     	scanProdutos.close();
     	
     	return extraidoComSucesso;
+    }
+    
+    /* Método que serve para converter a string de forma que esteja no padrão para conversão para double */
+    private static double conversaoPreco(String preco) {
+		double precoConvertido = 0;
+		preco = preco.replace(",", ".");
+		
+		int contPontos = 0;
+		// Pega a quantidade de pontos que aparece no string preço
+		for (int i = 0; i < preco.length(); i++) {
+			if (preco.charAt(i) == '.') {
+				contPontos++; // Adicionado a posição do ponto
+			}
+		}
+		
+		/* Checa a quantidade de pontos que aparece e retorna e caso o preço string tenha mais de dois pontos 
+		 * fará a conversão correta para pegar o valor no padrão brasileiro */
+		if (contPontos > 1) {
+			String precoCorreto = "";
+			for (int i = 0; i < preco.length(); i++) {
+				if (preco.charAt(i) != '.')
+					precoCorreto += preco.charAt(i);
+				else if (contPontos-- == 1) 
+					break; // Dá o break, porque esse último ponto é o que separa a parte decimal da parte inteira
+				}
+			precoConvertido = Double.parseDouble(precoCorreto);
+		}
+		else 
+			precoConvertido = Double.parseDouble(preco);
+		
+		return precoConvertido;
     }
     
     /* Menu que interage com o usuário final do sistema */
@@ -318,16 +354,23 @@ public class MainApp {
         			chamadaCompra = false;
         			break;
         			
-        		case 7: // Acessa o histórico de compras do sistema
+        		case 7: // Acessa o histórico de compras do sistema. 
         			if (compras.isEmpty()) {
 						System.out.println("Não há historico de compras");
-					}else {
-						System.out.println("Histórico de compras");
-						Listagem.historicoCompras(compras);
+					}
+        			else {
+        				System.out.println("Deseja acessar qual histórico de compras?");
+        				System.out.println("0 - Voltar\n1 - Histórico geral de compras\n2 - Histórico sequencial de compras\n\n");
+        				opcao2 = controleEntradaDados(scanUser.nextLine(), 0, 2, msgErro, msgErro);
+        				if (opcao2 == 0) { break; }
+						if (opcao2 == 1)
+							Listagem.historicoComprasGeral(compras);
+						else
+							Listagem.historicoComprasSequencial(compras);
 					}
         			chamadaCompra = false;
         			break;
-        			
+        		
         		default:
         			chamadaCompra = false;
         			System.out.println("Não existe essa busca");

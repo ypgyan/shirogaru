@@ -61,7 +61,7 @@ class Listagem {
     	double valorTotal = 0.0;
     	
     	for (int i = 0; i < itens.size(); i++) {
-    		System.out.println(String.format("%-2s %-2s", (i+1), "-") + itens.get(i).toString());
+    		System.out.println(String.format("%-3s %-2s", (i+1), "-") + itens.get(i).toString());
     		unidades += itens.get(i).getQuantidade();
     		if (mode == 1) {
     			valorTotal += ((itens.get(i).getQuantidade()) * (itens.get(i).getPreco()));
@@ -107,7 +107,7 @@ class Listagem {
     	System.out.println("Total de produtos: "+ (produtos.size()));
     }
     
-    public static void historicoCompras(List<Carrinho> compras) {
+    public static void historicoComprasGeral(List<Carrinho> compras) {
     	// Armazena todas os carrinhos de compras feitas até o para ordenar segundo os parâmetros pedidos
     	List<ItemCarrinho> historico = new ArrayList<>();
     	
@@ -136,4 +136,10 @@ class Listagem {
     	listarItensCarrinho(historico);
     }
     
+    public static void historicoComprasSequencial(List<Carrinho> compras) {
+    	for (Carrinho compra : compras) {
+    		System.out.println(compra);
+    		Listagem.pularLinha(2);
+    	}
+    }
 }
