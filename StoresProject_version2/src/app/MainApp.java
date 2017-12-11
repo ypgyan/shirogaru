@@ -34,6 +34,7 @@ public class MainApp {
     	
     	if (carregarSistema(itens, lojas, produtos, compras, clienteCart, nomeArq)) {
     		System.out.println("Carregado com sucesso");
+    		menu(lojas,produtos,itens,compras,clienteCart);
     	}
     	else {
     		System.out.println("Error system");
@@ -52,18 +53,18 @@ public class MainApp {
 		    ObjectInputStream ois = new ObjectInputStream(fis);
 		    
 		    // Recupera os arquivos de acordo com a ordem que foram inseridos no arquivo.dat
-	    	itens = (List<Item>) ois.readObject();
-		    lojas = (Map<String,Loja>) ois.readObject();
-		    produtos = (Map<Integer, Produto>) ois.readObject();
-		    compras = (List<Carrinho>) ois.readObject();
-		    clienteCart = (List<ItemCarrinho>) ois.readObject();
+	    	itens.addAll((List<Item>) ois.readObject());
+		    lojas.putAll((Map<String,Loja>) ois.readObject());
+		    produtos.putAll((Map<Integer, Produto>) ois.readObject());
+		    compras.addAll((List<Carrinho>) ois.readObject());
+		    clienteCart.addAll((List<ItemCarrinho>) ois.readObject());
 		    
 		    ois.close(); // Fecha o ObjectInputStream
 		    carregadoComSucesso = true;
 	    }
 	    catch (FileNotFoundException e) {
 	    	carregadoComSucesso = importarLojas(lojas, "Database/lojas.txt");
-	    	carregadoComSucesso = extrairItens(itens, lojas, produtos, "Database/produtos.txt");
+	    	carregadoComSucesso = extrairItens(itens, lojas, produtos, "Database/produtos2.txt");
 	    }
 	    catch (ClassCastException | ClassNotFoundException | IOException e) {
 	    	System.out.println("Houve problema na leitura do arquivo");
@@ -279,7 +280,7 @@ public class MainApp {
         		
         		case 3: //busca por tipo
         			System.out.println("Escolha uma opcao do tipo desejado:");
-        			System.out.println("0 - Voltar\n1 - Eletronico\n2 - Item de Casa\n3 - Livro");
+        			System.out.println("1 - Eletronico\n2 - Item de Casa\n3 - Livro\n0 - Voltar");
         			opcao2 = controleEntradaDados(scanUser.nextLine(), 0, 3, msgErro, msgErro);
         			if (opcao2 == 0) { break; } 
         			itensFiltrados = Busca.tipoProduto(itens, opcao2);
@@ -289,12 +290,14 @@ public class MainApp {
         			
         		case 4: //busca pelo codigo do produto
         			List<Produto> listProdutos = Busca.todosProdutos(produtos);
-        			System.out.println("0 - Voltar");
         			Listagem.listarProdutos(listProdutos);
+        			Listagem.pularLinha(1);
+        			System.out.println("0 - Voltar");
         			System.out.println("\nSelecione a opção do código do produto desejada: ");
-        			opcao2 = controleEntradaDados(scanUser.nextLine(), 0, listProdutos.size(), msgErro, msgErro); // Captura a opcao desejada da loja
-        			if (opcao2 == 0) { break; } 
-        			itensFiltrados = Busca.codigoProduto(itens, listProdutos.get(opcao2 - 1).getCodigo());
+        			int codFinal = listProdutos.get(listProdutos.size()-1).getCodigo(); // Define codigo maximo
+        			int codigo = controleEntradaDados(scanUser.nextLine(), 0, codFinal, msgErro, msgErro); // Captura a opcao desejada da loja
+        			if (codigo == 0) { break; } 
+        			itensFiltrados = Busca.codigoProduto(itens, codigo);
         			msgFiltroVazio = "Não foi possível encontrar nenhum produto contendo esse nome";
         			chamadaCompra = true;
         			break;
@@ -373,6 +376,7 @@ public class MainApp {
 				System.out.println("Selecione o item que deseja comprar:");
 				// Lista o resultado da pesquisa outra
 				System.out.println("0 - Voltar");
+				Listagem.pularLinha(1);
 				Listagem.listarItens(itens, 0);
 				Listagem.pularLinha(1);
 				
@@ -477,9 +481,10 @@ public class MainApp {
 	    		
 	    		case 2: // Adiciona unidades do item escolhido no carrinho.
 	    			while (true) {
-	    				System.out.println("Escolha o produto que deseja adicionar unidades:");
-		    			System.out.println("0 - Voltar");
+	    				System.out.println("Escolha o produto que deseja adicionar unidades:");		    			
 		    			Listagem.listarItensCarrinho(cart);
+		    			Listagem.pularLinha(1);
+		    			System.out.println("0 - Voltar");
 		    			opcao2 = controleEntradaDados(scanUser.nextLine(), 0, cart.size(), msgErro, msgErro);
 		    			Listagem.pularLinha(1);
 		    			
@@ -508,8 +513,9 @@ public class MainApp {
 	    		case 3: // Remove unidades do item escolhido no carrinho.
 	    			while (true) {
 	    				System.out.println("Escolha o produto que deseja remover unidades:");
-		    			System.out.println("0 - Voltar");
 		    			Listagem.listarItensCarrinho(cart);
+		    			System.out.println("0 - Voltar");
+		    			Listagem.pularLinha(1);
 		    			opcao2 = controleEntradaDados(scanUser.nextLine(), 0, cart.size(), msgErro, msgErro);
 		    			Listagem.pularLinha(1);
 		    			

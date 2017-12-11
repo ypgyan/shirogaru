@@ -32,8 +32,12 @@ public class ItemCarrinho implements Comparable<ItemCarrinho>, Serializable {
 	@Override
 	public String toString() 
 	{
-		return this.item.getLoja().getId() + " " + this.getItem().getProduto() + String.format("%-3d %.2f", 
-				this.quantidade, this.item.getPreco());
+		int codigo = this.getItem().getProduto().getCodigo();
+		String nome = this.getItem().getProduto().getNome();
+		String idLoja = this.item.getLoja().getId();
+		
+		return  String.format("%-5s %-5d %-35s", idLoja, codigo, nome) + String.format("%-2d %-7s R$ %.2f", 
+				this.quantidade, "unid", this.item.getPreco());
 	}
 	
 	@Override

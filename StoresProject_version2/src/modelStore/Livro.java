@@ -32,6 +32,6 @@ public class Livro extends Produto {
 	
 	@Override
 	public String toString() {
-		return super.toString() + String.format("%-15s", "Livro");
+		return String.format("%-15s %-20s %s", "Livro", autor, nPaginas);
 	}
 }

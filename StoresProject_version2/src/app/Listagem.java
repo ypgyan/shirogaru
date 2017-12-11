@@ -30,7 +30,7 @@ class Listagem {
 	    	int unidades = 0;
 			double valorTotal = 0.0;
 			for (int i = 0; i < cart.size(); i++) {
-	    		System.out.println((i+1) + " - " + cart.get(i).toString());
+	    		System.out.println(String.format("%-2s %-2s", (i+1), "-") + cart.get(i).toString());
 	    		valorTotal += ((cart.get(i).getQuantidade()) * (cart.get(i).getItem().getPreco()));
 	    		unidades += cart.get(i).getQuantidade();
 	    		
@@ -61,7 +61,7 @@ class Listagem {
     	double valorTotal = 0.0;
     	
     	for (int i = 0; i < itens.size(); i++) {
-    		System.out.println((i+1) + " - " + itens.get(i).toString());
+    		System.out.println(String.format("%-2s %-2s", (i+1), "-") + itens.get(i).toString());
     		unidades += itens.get(i).getQuantidade();
     		if (mode == 1) {
     			valorTotal += ((itens.get(i).getQuantidade()) * (itens.get(i).getPreco()));
@@ -98,7 +98,11 @@ class Listagem {
     public static void listarProdutos(List<Produto> produtos) 
     {
     	for (int i = 0; i < produtos.size(); i++) {
-    		System.out.println((i+1) + " - " + produtos.get(i));
+    		int codProd = produtos.get(i).getCodigo();
+    		String nome = produtos.get(i).getNome();
+    		String tipo = produtos.get(i).getTipoProd();
+    		
+    		System.out.println(String.format("%-2d %-1s %-40s %-10s", codProd,"-" , nome, tipo ));
     	}
     	System.out.println("Total de produtos: "+ (produtos.size()));
     }

@@ -39,6 +39,6 @@ public class Eletronico extends Produto {
 	
 	@Override
 	public String toString() { 
-		return super.toString() + String.format("%-15s", "Eletronico");
+		return String.format("%-15s %-20s %-15s %s", "Eletronico", marca, cor, peso);
 	}
 }

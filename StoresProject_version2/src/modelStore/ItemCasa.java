@@ -40,6 +40,6 @@ public class ItemCasa extends Produto{
 	
 	@Override
 	public String toString() {
-		return super.toString() + String.format("%-15s", "Item de Casa");
+		return String.format("%-15s %-20s %-15s %s", "Item de Casa", material, cor, tipo);
 	}
 }
