@@ -30,7 +30,7 @@ class Listagem {
 	    	int unidades = 0;
 			double valorTotal = 0.0;
 			for (int i = 0; i < cart.size(); i++) {
-	    		System.out.println(String.format("%-2s %-2s", (i+1), "-") + cart.get(i).toString());
+	    		System.out.println(String.format("%-3s %-3s", (i+1), "-") + cart.get(i).toString());
 	    		valorTotal += ((cart.get(i).getQuantidade()) * (cart.get(i).getItem().getPreco()));
 	    		unidades += cart.get(i).getQuantidade();
 	    		
@@ -61,7 +61,7 @@ class Listagem {
     	double valorTotal = 0.0;
     	
     	for (int i = 0; i < itens.size(); i++) {
-    		System.out.println(String.format("%-3s %-2s", (i+1), "-") + itens.get(i).toString());
+    		System.out.println(String.format("%-3s %-3s", (i+1), "-") + itens.get(i).toString()+ " "+itens.get(i).getProduto().toString());
     		unidades += itens.get(i).getQuantidade();
     		if (mode == 1) {
     			valorTotal += ((itens.get(i).getQuantidade()) * (itens.get(i).getPreco()));
@@ -86,6 +86,7 @@ class Listagem {
 		}
     	
     }
+    
     
     public static void listarLojas(List<Loja> lojas) 
     {

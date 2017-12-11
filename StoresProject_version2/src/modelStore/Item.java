@@ -50,8 +50,7 @@ public class Item implements Comparable<Item>, Serializable {
 	@Override
 	public String toString() 
 	{
-		return this.loja.getId() + " " + String.format("%-5s %-40.40s", produto.getCodigo(), produto.getNome()) + " "
-				+ String.format("%-2d %-5s R$ %-10.2f", this.quantidade, "unid", this.preco) + this.produto;
+		return String.format("%-2s %-2d %-30.30s %-4d %-5s R$ %-10.2f", this.loja.getId(), produto.getCodigo(), produto.getNome(),this.quantidade, "unid", this.preco);
 	}
 
 	@Override

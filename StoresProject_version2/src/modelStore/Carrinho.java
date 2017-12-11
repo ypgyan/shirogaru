@@ -37,6 +37,10 @@ public class Carrinho implements Serializable {
 		}
 		
 		if (itensCompra != "") {
+			itensCompra += "\nValor Total: R$ " + precoTotal()+"\n"; 
+		}
+		
+		if (itensCompra != "") {
 			itensCompra += "Data e horário da compra: " + this.dataHora; 
 		}
 		
